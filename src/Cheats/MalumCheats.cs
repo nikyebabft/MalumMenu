@@ -12,21 +12,22 @@ public static class MalumCheats
     {
         if (!CheatToggles.closeMeeting) return;
 
-        if (Utils.isMeeting)
-        { // Closes MeetingHud window if it's open
-
-            // Destroy MeetingHud window gameobject
-            MeetingHud.Instance.DespawnOnDestroy = false;
-            Object.Destroy(MeetingHud.Instance.gameObject);
+        if (Utils.isMeeting && MeetingHud.Instance != null)
+        { 
+            // Instead of destroying, just disable the meeting HUD
+            MeetingHud.Instance.gameObject.SetActive(false);
+            
+            // Keep a reference to reopen later
+            Utils.closedMeetingHud = MeetingHud.Instance;
 
             // Gameplay must be reenabled
-            DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
+            DestroyableSingleton<HudManager>.Instance.StartCoroutine(
+                DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
             PlayerControl.LocalPlayer.SetKillTimer(GameManager.Instance.LogicOptions.GetKillCooldown());
             ShipStatus.Instance.EmergencyCooldown = GameManager.Instance.LogicOptions.GetEmergencyCooldown();
             Camera.main.GetComponent<FollowerCamera>().Locked = false;
             DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
             ControllerManager.Instance.CloseAndResetAll();
-
         }
         else if (ExileController.Instance)
         { // Ends exile cutscene if it's playing
@@ -35,6 +36,24 @@ public static class MalumCheats
         }
 
         CheatToggles.closeMeeting = false; // Button behaviour
+    }
+
+    public static void openMeetingCheat()
+    {
+        if (!CheatToggles.openMeeting) return;
+
+        if (Utils.closedMeetingHud != null && !Utils.isMeeting)
+        {
+            // Re-enable the meeting HUD
+            Utils.closedMeetingHud.gameObject.SetActive(true);
+            Utils.closedMeetingHud = null;
+            
+            // Re-disable gameplay to focus on meeting
+            DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
+            Camera.main.GetComponent<FollowerCamera>().Locked = true;
+        }
+
+        CheatToggles.openMeeting = false;
     }
 
     public static void skipMeetingCheat()
@@ -345,50 +364,6 @@ public static class MalumCheats
         }
     }
 
-    public static void openNonHostTelekillMenu()
-    {
-        // Get all alive players (excluding yourself)
-        var playerList = new Il2CppSystem.Collections.Generic.List<NetworkedPlayerInfo>();
-
-        foreach (var player in PlayerControl.AllPlayerControls)
-        {
-            if (player == PlayerControl.LocalPlayer || player.Data.IsDead) continue;
-            playerList.Add(player.Data);
-        }
-
-        if (playerList.Count == 0) return;
-
-        // Open player pick menu
-        PlayerPickMenu.openPlayerPickMenu(playerList, (Il2CppSystem.Action)(() =>
-        {
-            // This runs when player is selected
-            var target = PlayerPickMenu.targetPlayerData.Object;
-            if (target == null) return;
-
-            if (Utils.isLobby)
-            {
-                HudManager.Instance.Notifier.AddDisconnectMessage("Killing in lobby disabled for being too buggy");
-                return;
-            }
-
-            // Save original position
-            Vector2 originalPosition = PlayerControl.LocalPlayer.transform.position;
-
-            // KILL THEM (using kill reach if enabled)
-            Utils.murderPlayer(target, MurderResultFlags.Succeeded);
-
-            // TELEPORT BACK (optional - remove this line if you don't want it)
-            PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(originalPosition);
-
-            // Close menu
-            PlayerPickMenu.IsActive = false;
-            if (PlayerPickMenu.playerpickMenu != null)
-            {
-                Object.Destroy(PlayerPickMenu.playerpickMenu.gameObject);
-            }
-        }));
-    }
-
     public static void noClipCheat()
     {
         try
@@ -504,7 +479,6 @@ public static class MalumCheats
             }
             else
             {
-                // ShipStatus.Instance.UpdateSystem(SystemTypes.Security, PlayerControl.LocalPlayer, (byte)(CheatToggles.animCamsInUse ? 1 : 0));
                 ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Security, 1);
                 _hasUsedCamsCheatBefore = true;
             }
