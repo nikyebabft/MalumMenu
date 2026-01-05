@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using Newtonsoft.Json;
 
 namespace MalumMenu;
 
@@ -150,8 +149,29 @@ public static class WaypointSystem
     {
         try
         {
-            string json = JsonConvert.SerializeObject(waypoints, Formatting.Indented);
-            File.WriteAllText(WaypointFilePath, json);
+            // Simple JSON serialization without Newtonsoft
+            var jsonLines = new List<string>();
+            jsonLines.Add("[");
+            
+            for (int i = 0; i < waypoints.Count; i++)
+            {
+                var wp = waypoints[i];
+                var json = $@"    {{
+        ""name"": ""{EscapeJsonString(wp.name)}"",
+        ""position"": {{""x"": {wp.position.x.ToString(System.Globalization.CultureInfo.InvariantCulture)}, ""y"": {wp.position.y.ToString(System.Globalization.CultureInfo.InvariantCulture)}, ""z"": {wp.position.z.ToString(System.Globalization.CultureInfo.InvariantCulture)}}},
+        ""mapId"": {wp.mapId},
+        ""timestamp"": ""{EscapeJsonString(wp.timestamp)}""
+    }}";
+                
+                if (i < waypoints.Count - 1)
+                    json += ",";
+                
+                jsonLines.Add(json);
+            }
+            
+            jsonLines.Add("]");
+            
+            File.WriteAllLines(WaypointFilePath, jsonLines);
         }
         catch { }
     }
@@ -163,13 +183,120 @@ public static class WaypointSystem
             if (File.Exists(WaypointFilePath))
             {
                 string json = File.ReadAllText(WaypointFilePath);
-                waypoints = JsonConvert.DeserializeObject<List<WaypointData>>(json) ?? new List<WaypointData>();
+                
+                // Simple JSON parsing
+                waypoints = ParseWaypointsJson(json);
             }
         }
         catch
         {
             waypoints = new List<WaypointData>();
         }
+    }
+    
+    private static List<WaypointData> ParseWaypointsJson(string json)
+    {
+        var result = new List<WaypointData>();
+        
+        try
+        {
+            // Remove whitespace and split into lines
+            json = json.Replace("\r", "").Replace("\n", "").Replace(" ", "");
+            
+            // Check if it's an array
+            if (!json.StartsWith("[") || !json.EndsWith("]"))
+                return result;
+            
+            // Remove brackets
+            json = json.Substring(1, json.Length - 2);
+            
+            // Split by objects
+            var objects = SplitJsonObjects(json);
+            
+            foreach (var obj in objects)
+            {
+                var waypoint = ParseWaypointObject(obj);
+                if (waypoint != null)
+                    result.Add(waypoint);
+            }
+        }
+        catch { }
+        
+        return result;
+    }
+    
+    private static List<string> SplitJsonObjects(string json)
+    {
+        var objects = new List<string>();
+        int depth = 0;
+        int start = 0;
+        
+        for (int i = 0; i < json.Length; i++)
+        {
+            if (json[i] == '{')
+                depth++;
+            else if (json[i] == '}')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    objects.Add(json.Substring(start, i - start + 1));
+                    start = i + 2; // Skip comma and next char
+                }
+            }
+        }
+        
+        return objects;
+    }
+    
+    private static WaypointData ParseWaypointObject(string json)
+    {
+        try
+        {
+            var waypoint = new WaypointData();
+            
+            // Parse name
+            var nameMatch = System.Text.RegularExpressions.Regex.Match(json, @"""name"":""([^""]*)""");
+            if (nameMatch.Success)
+                waypoint.name = UnescapeJsonString(nameMatch.Groups[1].Value);
+            
+            // Parse position
+            var posMatch = System.Text.RegularExpressions.Regex.Match(json, @"""position"":\{""x"":([^,]*),""y"":([^,]*),""z"":([^}]*)\}");
+            if (posMatch.Success)
+            {
+                waypoint.position = new Vector3(
+                    float.Parse(posMatch.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture),
+                    float.Parse(posMatch.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture),
+                    float.Parse(posMatch.Groups[3].Value, System.Globalization.CultureInfo.InvariantCulture)
+                );
+            }
+            
+            // Parse mapId
+            var mapIdMatch = System.Text.RegularExpressions.Regex.Match(json, @"""mapId"":([^,]*)");
+            if (mapIdMatch.Success)
+                waypoint.mapId = int.Parse(mapIdMatch.Groups[1].Value);
+            
+            // Parse timestamp
+            var timeMatch = System.Text.RegularExpressions.Regex.Match(json, @"""timestamp"":""([^""]*)""");
+            if (timeMatch.Success)
+                waypoint.timestamp = UnescapeJsonString(timeMatch.Groups[1].Value);
+            
+            return waypoint;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+    
+    private static string EscapeJsonString(string input)
+    {
+        return input.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
+    }
+    
+    private static string UnescapeJsonString(string input)
+    {
+        return input.Replace("\\\"", "\"").Replace("\\\\", "\\").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\t", "\t");
     }
 }
 
