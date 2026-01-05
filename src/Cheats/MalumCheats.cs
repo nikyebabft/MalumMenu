@@ -14,16 +14,12 @@ public static class MalumCheats
 
         if (Utils.isMeeting)
         { 
-            // Store the meeting and its position
-            Utils.closedMeetingHud = MeetingHud.Instance;
-            Utils.closedMeetingPosition = MeetingHud.Instance.transform.position;
-            
-            // Move the meeting FAR off-screen instead of disabling it
-            MeetingHud.Instance.transform.position = new Vector3(9999f, 9999f, 9999f);
-            
-            // Re-enable gameplay
-            DestroyableSingleton<HudManager>.Instance.StartCoroutine(
-                DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
+            // Destroy MeetingHud window gameobject
+            MeetingHud.Instance.DespawnOnDestroy = false;
+            Object.Destroy(MeetingHud.Instance.gameObject);
+
+            // Gameplay must be reenabled
+            DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
             PlayerControl.LocalPlayer.SetKillTimer(GameManager.Instance.LogicOptions.GetKillCooldown());
             ShipStatus.Instance.EmergencyCooldown = GameManager.Instance.LogicOptions.GetEmergencyCooldown();
             Camera.main.GetComponent<FollowerCamera>().Locked = false;
@@ -36,28 +32,7 @@ public static class MalumCheats
             ExileController.Instance.WrapUp();
         }
 
-        CheatToggles.closeMeeting = false;
-    }
-
-    public static void openMeetingCheat()
-    {
-        if (!CheatToggles.openMeeting) return;
-
-        if (Utils.closedMeetingHud != null)
-        {
-            // Move the meeting back to its original position
-            Utils.closedMeetingHud.transform.position = Utils.closedMeetingPosition;
-            
-            // Re-disable gameplay to focus on meeting
-            DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
-            Camera.main.GetComponent<FollowerCamera>().Locked = true;
-            
-            // Clear the stored references
-            Utils.closedMeetingHud = null;
-            Utils.closedMeetingPosition = Vector3.zero;
-        }
-
-        CheatToggles.openMeeting = false;
+        CheatToggles.closeMeeting = false; // Button behaviour
     }
 
     public static void skipMeetingCheat()
@@ -493,5 +468,31 @@ public static class MalumCheats
             ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Security, 0);
             _hasUsedCamsCheatBefore = false;
         }
+    }
+
+    // NEW: Waypoint cheats
+    public static void saveWaypointCheat()
+    {
+        if (!CheatToggles.saveWaypoint) return;
+        
+        if (Utils.isPlayer)
+        {
+            string name = $"WP_{System.DateTime.Now:HHmmss}";
+            WaypointSystem.AddWaypoint(
+                name,
+                PlayerControl.LocalPlayer.transform.position,
+                Utils.getCurrentMapID()
+            );
+        }
+        
+        CheatToggles.saveWaypoint = false;
+    }
+
+    public static void clearWaypointsCheat()
+    {
+        if (!CheatToggles.clearWaypoints) return;
+        
+        WaypointSystem.ClearAllWaypoints();
+        CheatToggles.clearWaypoints = false;
     }
 }
