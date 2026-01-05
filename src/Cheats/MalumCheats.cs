@@ -12,7 +12,8 @@ public static class MalumCheats
     {
         if (!CheatToggles.closeMeeting) return;
 
-        if (Utils.isMeeting){ // Closes MeetingHud window if it's open
+        if (Utils.isMeeting)
+        { // Closes MeetingHud window if it's open
 
             // Destroy MeetingHud window gameobject
             MeetingHud.Instance.DespawnOnDestroy = false;
@@ -26,7 +27,9 @@ public static class MalumCheats
             DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
             ControllerManager.Instance.CloseAndResetAll();
 
-        }else if (ExileController.Instance){ // Ends exile cutscene if it's playing
+        }
+        else if (ExileController.Instance)
+        { // Ends exile cutscene if it's playing
             ExileController.Instance.ReEnableGameplay();
             ExileController.Instance.WrapUp();
         }
@@ -70,14 +73,16 @@ public static class MalumCheats
 
     public static void noKillCdCheat(PlayerControl playerControl)
     {
-        if (CheatToggles.zeroKillCd && playerControl.killTimer > 0f){
+        if (CheatToggles.zeroKillCd && playerControl.killTimer > 0f)
+        {
             playerControl.SetKillTimer(0f);
         }
     }
 
     public static void completeMyTasksCheat()
     {
-        if (CheatToggles.completeMyTasks){
+        if (CheatToggles.completeMyTasks)
+        {
             Utils.completeMyTasks();
 
             CheatToggles.completeMyTasks = false;
@@ -86,21 +91,26 @@ public static class MalumCheats
 
     public static void engineerCheats(EngineerRole engineerRole)
     {
-        if (CheatToggles.endlessVentTime){
+        if (CheatToggles.endlessVentTime)
+        {
 
             // Makes vent time so incredibly long (float.MaxValue) so that it never ends
             engineerRole.inVentTimeRemaining = float.MaxValue;
 
-        // Vent time is reset to normal value after the cheat is disabled
-        }else if (engineerRole.inVentTimeRemaining > engineerRole.GetCooldown()){
+            // Vent time is reset to normal value after the cheat is disabled
+        }
+        else if (engineerRole.inVentTimeRemaining > engineerRole.GetCooldown())
+        {
 
             engineerRole.inVentTimeRemaining = engineerRole.GetCooldown();
 
         }
 
-        if (CheatToggles.noVentCooldown){
+        if (CheatToggles.noVentCooldown)
+        {
 
-            if (engineerRole.cooldownSecondsRemaining > 0f){
+            if (engineerRole.cooldownSecondsRemaining > 0f)
+            {
 
                 engineerRole.cooldownSecondsRemaining = 0f;
 
@@ -114,13 +124,16 @@ public static class MalumCheats
 
     public static void shapeshifterCheats(ShapeshifterRole shapeshifterRole)
     {
-        if (CheatToggles.endlessSsDuration){
+        if (CheatToggles.endlessSsDuration)
+        {
 
             // Makes shapeshift duration so incredibly long (float.MaxValue) so that it never ends
             shapeshifterRole.durationSecondsRemaining = float.MaxValue;
 
-        // Shapeshift duration is reset to normal value after the cheat is disabled
-        }else if (shapeshifterRole.durationSecondsRemaining > GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.ShapeshifterDuration)){
+            // Shapeshift duration is reset to normal value after the cheat is disabled
+        }
+        else if (shapeshifterRole.durationSecondsRemaining > GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.ShapeshifterDuration))
+        {
 
             shapeshifterRole.durationSecondsRemaining = GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.ShapeshifterDuration);
 
@@ -129,18 +142,22 @@ public static class MalumCheats
 
     public static void scientistCheats(ScientistRole scientistRole)
     {
-        if (CheatToggles.noVitalsCooldown){
+        if (CheatToggles.noVitalsCooldown)
+        {
 
             scientistRole.currentCooldown = 0f;
         }
 
-        if (CheatToggles.endlessBattery){
+        if (CheatToggles.endlessBattery)
+        {
 
             // Makes vitals battery so incredibly long (float.MaxValue) so that it never ends
             scientistRole.currentCharge = float.MaxValue;
 
-        // Battery charge is reset to normal value after the cheat is disabled
-        }else if (scientistRole.currentCharge > scientistRole.RoleCooldownValue){
+            // Battery charge is reset to normal value after the cheat is disabled
+        }
+        else if (scientistRole.currentCharge > scientistRole.RoleCooldownValue)
+        {
 
             scientistRole.currentCharge = scientistRole.RoleCooldownValue;
 
@@ -149,7 +166,8 @@ public static class MalumCheats
 
     public static void trackerCheats(TrackerRole trackerRole)
     {
-        if (CheatToggles.noTrackingCooldown){
+        if (CheatToggles.noTrackingCooldown)
+        {
 
             trackerRole.cooldownSecondsRemaining = 0f;
             trackerRole.delaySecondsRemaining = 0f;
@@ -159,19 +177,23 @@ public static class MalumCheats
 
         }
 
-        if (CheatToggles.noTrackingDelay){
+        if (CheatToggles.noTrackingDelay)
+        {
 
             MapBehaviour.Instance.trackedPointDelayTime = GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.TrackerDelay);
 
         }
 
-        if (CheatToggles.endlessTracking){
+        if (CheatToggles.endlessTracking)
+        {
 
             // Makes vitals battery so incredibly long (float.MaxValue) so that it never ends
             trackerRole.durationSecondsRemaining = float.MaxValue;
 
-        // Battery charge is reset to normal value after the cheat is disabled
-        }else if (trackerRole.durationSecondsRemaining > GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.TrackerDuration)){
+            // Battery charge is reset to normal value after the cheat is disabled
+        }
+        else if (trackerRole.durationSecondsRemaining > GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.TrackerDuration))
+        {
 
             trackerRole.durationSecondsRemaining = GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.TrackerDuration);
 
@@ -186,16 +208,19 @@ public static class MalumCheats
     public static void useVentCheat(HudManager hudManager)
     {
         // try-catch to prevent errors when role is null
-        try{
+        try
+        {
 
-			// Engineers & Impostors don't need this cheat so it is disabled for them
-			// Ghost venting causes issues so it is also disabled
+            // Engineers & Impostors don't need this cheat so it is disabled for them
+            // Ghost venting causes issues so it is also disabled
 
-			if (!PlayerControl.LocalPlayer.Data.Role.CanVent && !PlayerControl.LocalPlayer.Data.IsDead){
-				hudManager.ImpostorVentButton.gameObject.SetActive(CheatToggles.useVents);
-			}
+            if (!PlayerControl.LocalPlayer.Data.Role.CanVent && !PlayerControl.LocalPlayer.Data.IsDead)
+            {
+                hudManager.ImpostorVentButton.gameObject.SetActive(CheatToggles.useVents);
+            }
 
-        }catch{}
+        }
+        catch { }
     }
 
     public static void sabotageCheat(ShipStatus shipStatus)
@@ -227,14 +252,15 @@ public static class MalumCheats
 
             PlayerControl.LocalPlayer.inVent = false;
             PlayerControl.LocalPlayer.moveable = true;
-        }catch{}
+        }
+        catch { }
     }
 
     public static void kickVentsCheat()
     {
         if (!CheatToggles.kickVents) return;
 
-        foreach(var vent in ShipStatus.Instance.AllVents)
+        foreach (var vent in ShipStatus.Instance.AllVents)
         {
             VentilationSystem.Update(VentilationSystem.Operation.BootImpostors, vent.Id);
         }
@@ -275,7 +301,8 @@ public static class MalumCheats
             // Kill all players by sending a successful MurderPlayer RPC call
             foreach (var player in PlayerControl.AllPlayerControls)
             {
-                if (player.Data.Role.TeamType == RoleTeamTypes.Crewmate){
+                if (player.Data.Role.TeamType == RoleTeamTypes.Crewmate)
+                {
                     Utils.murderPlayer(player, MurderResultFlags.Succeeded);
                 }
             }
@@ -297,7 +324,8 @@ public static class MalumCheats
             // Kill all players by sending a successful MurderPlayer RPC call
             foreach (var player in PlayerControl.AllPlayerControls)
             {
-                if (player.Data.Role.TeamType == RoleTeamTypes.Impostor){
+                if (player.Data.Role.TeamType == RoleTeamTypes.Impostor)
+                {
                     Utils.murderPlayer(player, MurderResultFlags.Succeeded);
                 }
             }
@@ -317,13 +345,59 @@ public static class MalumCheats
         }
     }
 
+    public static void openNonHostTelekillMenu()
+    {
+        // Get all alive players (excluding yourself)
+        var playerList = new Il2CppSystem.Collections.Generic.List<NetworkedPlayerInfo>();
+
+        foreach (var player in PlayerControl.AllPlayerControls)
+        {
+            if (player == PlayerControl.LocalPlayer || player.Data.IsDead) continue;
+            playerList.Add(player.Data);
+        }
+
+        if (playerList.Count == 0) return;
+
+        // Open player pick menu
+        PlayerPickMenu.openPlayerPickMenu(playerList, (Il2CppSystem.Action)(() =>
+        {
+            // This runs when player is selected
+            var target = PlayerPickMenu.targetPlayerData.Object;
+            if (target == null) return;
+
+            if (Utils.isLobby)
+            {
+                HudManager.Instance.Notifier.AddDisconnectMessage("Killing in lobby disabled for being too buggy");
+                return;
+            }
+
+            // Save original position
+            Vector2 originalPosition = PlayerControl.LocalPlayer.transform.position;
+
+            // KILL THEM (using kill reach if enabled)
+            Utils.murderPlayer(target, MurderResultFlags.Succeeded);
+
+            // TELEPORT BACK (optional - remove this line if you don't want it)
+            PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(originalPosition);
+
+            // Close menu
+            PlayerPickMenu.IsActive = false;
+            if (PlayerPickMenu.playerpickMenu != null)
+            {
+                Object.Destroy(PlayerPickMenu.playerpickMenu.gameObject);
+            }
+        }));
+    }
+
     public static void noClipCheat()
     {
-        try{
+        try
+        {
 
             PlayerControl.LocalPlayer.Collider.enabled = !(CheatToggles.noClip || PlayerControl.LocalPlayer.onLadder);
 
-        }catch{}
+        }
+        catch { }
     }
 
     public static void speedBoostCheat()
@@ -341,7 +415,8 @@ public static class MalumCheats
 
             PlayerControl.LocalPlayer.MyPhysics.Speed = newSpeed;
             PlayerControl.LocalPlayer.MyPhysics.GhostSpeed = newGhostSpeed;
-        }catch{}
+        }
+        catch { }
     }
 
     public static void ReviveCheat()
@@ -440,6 +515,5 @@ public static class MalumCheats
             ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Security, 0);
             _hasUsedCamsCheatBefore = false;
         }
-
     }
 }
