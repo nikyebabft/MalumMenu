@@ -42,11 +42,11 @@ public static class MalumCheats
     public static void openMeetingCheat()
     {
         if (!CheatToggles.openMeeting) return;
-
-        if (Utils.closedMeetingHud != null && Utils.closedMeetingPosition != null)
+    
+        if (Utils.closedMeetingHud != null && Utils.closedMeetingPosition.HasValue)
         {
             // Move the meeting back to its original position
-            Utils.closedMeetingHud.transform.position = Utils.closedMeetingPosition;
+            Utils.closedMeetingHud.transform.position = Utils.closedMeetingPosition.Value;
             
             // Re-disable gameplay to focus on meeting
             DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
@@ -56,7 +56,7 @@ public static class MalumCheats
             Utils.closedMeetingHud = null;
             Utils.closedMeetingPosition = null;
         }
-
+    
         CheatToggles.openMeeting = false;
     }
 
