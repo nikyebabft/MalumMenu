@@ -115,8 +115,11 @@ public static class WaypointSystem
         
         foreach (var name in toRemove)
         {
-            Object.Destroy(waypointMarkers[name]);
-            waypointMarkers.Remove(name);
+            if (waypointMarkers.ContainsKey(name))
+            {
+                Object.Destroy(waypointMarkers[name]);
+                waypointMarkers.Remove(name);
+            }
         }
     }
     
@@ -124,28 +127,18 @@ public static class WaypointSystem
     {
         if (!Utils.isShip) return;
         
-        // Create a simple marker sprite
+        // Create a text marker instead of sprite
         var markerObject = new GameObject($"WaypointMarker_{name}");
-        markerObject.transform.position = position + new Vector3(0, 0.5f, 0); // Slightly above ground
+        markerObject.transform.position = position + new Vector3(0, 1f, 0); // Above position
         
-        var spriteRenderer = markerObject.AddComponent<SpriteRenderer>();
-        spriteRenderer.sprite = Utils.LoadSprite("MalumMenu.Resources.waypoint.png", 100f);
-        if (spriteRenderer.sprite == null)
-        {
-            // Create a simple colored circle if sprite not found
-            var texture = new Texture2D(64, 64);
-            Color[] colors = new Color[64 * 64];
-            for (int i = 0; i < colors.Length; i++)
-            {
-                colors[i] = Color.cyan;
-            }
-            texture.SetPixels(colors);
-            texture.Apply();
-            
-            spriteRenderer.sprite = Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f));
-        }
-        
-        spriteRenderer.color = new Color(0, 1, 1, 0.7f); // Cyan with transparency
+        // Create a TextMesh for emoji/text display
+        var textMesh = markerObject.AddComponent<TextMesh>();
+        textMesh.text = "📍"; // Pin emoji
+        textMesh.fontSize = 50;
+        textMesh.characterSize = 0.1f;
+        textMesh.color = Color.cyan;
+        textMesh.anchor = TextAnchor.MiddleCenter;
+        textMesh.alignment = TextAlignment.Center;
         
         // Make it always face camera
         markerObject.AddComponent<Billboard>();
