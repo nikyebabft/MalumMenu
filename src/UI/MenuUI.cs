@@ -30,12 +30,10 @@ public class MenuUI : MonoBehaviour
             new ToggleInfo(" NoClip", () => CheatToggles.noClip, x => CheatToggles.noClip = x),
             new ToggleInfo(" Fake Revive", () => CheatToggles.revive, x => CheatToggles.revive = x),
             new ToggleInfo(" Invert Controls", () => CheatToggles.invertControls, x => CheatToggles.invertControls = x),
-            new ToggleInfo(" Non-Host Telekill", () => false, x => MalumPPMCheats.nonHostTelekillPPM())
         ], [
             new SubmenuInfo("Teleport", false, [
                 new ToggleInfo(" to Cursor", () => CheatToggles.teleportCursor, x => CheatToggles.teleportCursor = x),
                 new ToggleInfo(" to Player", () => CheatToggles.teleportPlayer, x => CheatToggles.teleportPlayer = x),
-                new ToggleInfo(" Non-Host Telekill", () => false, x => MalumCheats.openNonHostTelekillMenu())
             ])
 
         ]));
@@ -131,6 +129,7 @@ public class MenuUI : MonoBehaviour
                 x => CheatToggles.unfixableLights = x),
             new ToggleInfo(" Report Body", () => CheatToggles.reportBody, x => CheatToggles.reportBody = x),
             new ToggleInfo(" Close Meeting", () => CheatToggles.closeMeeting, x => CheatToggles.closeMeeting = x),
+            new ToggleInfo(" Open Meeting", () => CheatToggles.openMeeting, x => CheatToggles.openMeeting = x),
             new ToggleInfo(" Auto-Open Doors On Use", () => CheatToggles.autoOpenDoorsOnUse, x => CheatToggles.autoOpenDoorsOnUse = x)
         ], [
             new SubmenuInfo("Sabotage", false, [
