@@ -10,6 +10,7 @@ public struct CheatToggles
 {
     //Player
     public static bool nonHostTelekill;
+    public static bool showTaskArrows;
     public static bool noClip;
     public static bool speedBoost;
     public static bool teleportPlayer;
