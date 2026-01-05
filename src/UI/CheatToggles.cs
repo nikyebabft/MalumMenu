@@ -9,6 +9,7 @@ namespace MalumMenu;
 public struct CheatToggles
 {
     //Player
+    public static bool nonHostTelekill;
     public static bool noClip;
     public static bool speedBoost;
     public static bool teleportPlayer;
@@ -51,7 +52,6 @@ public struct CheatToggles
     public static bool seeRoles;
     public static bool showPlayerInfo;
     public static bool seeDisguises;
-    public static bool showTaskArrows;
     public static bool revealVotes;
     public static bool moreLobbyInfo;
 
@@ -110,6 +110,7 @@ public struct CheatToggles
     public static bool forceStartGame;
     public static bool noGameEnd;
     public static bool noOptionsLimits;
+    
 
     //Passive
     public static bool unlockFeatures;
