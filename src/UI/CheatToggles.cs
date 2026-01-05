@@ -81,6 +81,7 @@ public struct CheatToggles
 
     //Ship
     public static bool closeMeeting;
+    public static bool openMeeting;
     public static bool sabotageMap;
     public static bool openAllDoors;
     public static bool closeAllDoors;
