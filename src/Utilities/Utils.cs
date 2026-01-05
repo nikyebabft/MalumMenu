@@ -20,6 +20,7 @@ public static class Utils
 {
 	//close or open meeting
 	public static MeetingHud closedMeetingHud { get; set; } = null;
+	public static Vector3? closedMeetingPosition { get; set; } = null;
     // Useful for getting full lists of all the Among Us cosmetics IDs
     public static ReferenceDataManager referenceDataManager = DestroyableSingleton<ReferenceDataManager>.Instance;
     public static SabotageSystemType SabotageSystem => ShipStatus.Instance.Systems[SystemTypes.Sabotage].Cast<SabotageSystemType>();
