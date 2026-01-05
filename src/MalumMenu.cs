@@ -134,22 +134,22 @@ public partial class MalumMenu : BasePlugin
                 MalumCheats.saveWaypointCheat();
                 MalumCheats.clearWaypointsCheat();
 
-                // Role-specific cheats
+                // Role-specific cheats - FIXED: Compare role byte directly without RoleTypes enum
                 var role = PlayerControl.LocalPlayer.Data?.Role;
                 if (role != null)
                 {
                     var roleType = role.Role;
                     
-                    // Cast to byte for comparison since RoleTypes is byte
-                    if (roleType == (byte)RoleTypes.Engineer)
+                    // Engineer role byte value
+                    if (roleType == 2) // Engineer
                         MalumCheats.engineerCheats(role.TryCast<EngineerRole>());
-                    else if (roleType == (byte)RoleTypes.Shapeshifter)
+                    else if (roleType == 3) // Shapeshifter
                         MalumCheats.shapeshifterCheats(role.TryCast<ShapeshifterRole>());
-                    else if (roleType == (byte)RoleTypes.Scientist)
+                    else if (roleType == 4) // Scientist
                         MalumCheats.scientistCheats(role.TryCast<ScientistRole>());
-                    else if (roleType == (byte)RoleTypes.Tracker)
+                    else if (roleType == 5) // Tracker
                         MalumCheats.trackerCheats(role.TryCast<TrackerRole>());
-                    else if (roleType == (byte)RoleTypes.Phantom)
+                    else if (roleType == 6) // Phantom
                         MalumCheats.phantomCheats(role.TryCast<PhantomRole>());
                 }
             }
