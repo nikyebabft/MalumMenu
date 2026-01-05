@@ -24,7 +24,6 @@ public class MenuUI : MonoBehaviour
     private float hue; // For RGB mode
 
     // Waypoint variables
-    private string newWaypointName = "New Waypoint";
     private Vector2 waypointScrollPos;
 
     // Create all groups (buttons) and their toggles on start
@@ -226,7 +225,7 @@ public class MenuUI : MonoBehaviour
             new ToggleInfo(" RGB Mode", () => CheatToggles.RGBMode, x => CheatToggles.RGBMode = x)
         ], []));
 
-        // NEW: Waypoints group
+        // NEW: Waypoints group (SIMPLE VERSION - no text field)
         groups.Add(new GroupInfo("Waypoints", false, [
             new ToggleInfo(" Save Current Position", () => CheatToggles.saveWaypoint, x => CheatToggles.saveWaypoint = x),
             new ToggleInfo(" Clear All Waypoints", () => CheatToggles.clearWaypoints, x => CheatToggles.clearWaypoints = x),
@@ -237,8 +236,6 @@ public class MenuUI : MonoBehaviour
     {
         if (!MalumMenu.useHorizontalUI.Value && (GUI.skin.toggle.fontSize == 13 || GUI.skin.toggle.fontSize == 0))
         {
-            //Debug.Log($"current style: {GUI.skin.button.fontSize}, {GUI.skin.toggle.fontSize}, {GUI.skin.button.normal.textColor}, {GUI.skin.button.normal.background}");
-
             GUI.skin.toggle.fontSize = GUI.skin.button.fontSize = 20;
         }
         else if (MalumMenu.useHorizontalUI.Value && GUI.skin.toggle.fontSize != 13)
@@ -279,8 +276,8 @@ public class MenuUI : MonoBehaviour
         };
     }
 
-    private void Update(){
-
+    private void Update()
+    {
         if (Input.GetKeyDown(Utils.stringToKeycode(MalumMenu.menuKeybind.Value)))
         {
             //Enable-disable GUI with DELETE key
@@ -316,11 +313,6 @@ public class MenuUI : MonoBehaviour
             CheatToggles.killAll = CheatToggles.telekillPlayer = CheatToggles.killAllCrew = CheatToggles.killAllImps = CheatToggles.killPlayer = CheatToggles.protectPlayer = CheatToggles.ejectPlayer = CheatToggles.zeroKillCd = CheatToggles.killAnyone = CheatToggles.killVanished = CheatToggles.forceStartGame = CheatToggles.noGameEnd = CheatToggles.skipMeeting = CheatToggles.callMeeting = false;
         }
 
-        //Host-only cheats are turned off if LocalPlayer is not the game's host
-        //if(!CheatChecks.isHost){
-        //    CheatToggles.voteImmune = CheatToggles.godMode = CheatToggles.impostorHack = CheatToggles.evilVote = false;
-        //}
-
         //Some cheats only work if the ship is present, so they are turned off if it is not
         if(!Utils.isShip){
             CheatToggles.revive = CheatToggles.sabotageMap = CheatToggles.unfixableLights = CheatToggles.completeMyTasks = CheatToggles.kickVents = CheatToggles.reportBody = CheatToggles.ejectPlayer = CheatToggles.closeMeeting = CheatToggles.skipMeeting = CheatToggles.callMeeting = CheatToggles.reactorSab = CheatToggles.oxygenSab = CheatToggles.commsSab = CheatToggles.elecSab = CheatToggles.mushSab = CheatToggles.closeAllDoors = CheatToggles.openAllDoors = CheatToggles.spamCloseAllDoors = CheatToggles.spamOpenAllDoors = CheatToggles.autoOpenDoorsOnUse = CheatToggles.mushSpore = CheatToggles.animShields = CheatToggles.animAsteroids = CheatToggles.animEmptyGarbage = CheatToggles.animScan = CheatToggles.animCamsInUse = false;
@@ -353,7 +345,6 @@ public class MenuUI : MonoBehaviour
 
     public void OnGUI()
     {
-
         if (!isGUIActive || isPanicked) return;
 
         InitStyles();
@@ -423,69 +414,51 @@ public class MenuUI : MonoBehaviour
             // SPECIAL HANDLING FOR WAYPOINTS GROUP
             if (group.name == "Waypoints")
             {
-                // Save waypoint section
-                GUI.Label(new Rect(20, currentYPosition, 280, 30), "Save New Waypoint:");
+                // Waypoints list header
+                GUI.Label(new Rect(20, currentYPosition, 280, 30), "Saved Waypoints:");
                 currentYPosition += 30;
                 
-                newWaypointName = GUI.TextField(new Rect(20, currentYPosition, 180, 30), newWaypointName);
+                // Simple list display (NO TEXT FIELD to avoid IL2CPP errors)
+                int waypointY = currentYPosition;
+                bool hasWaypoints = false;
                 
-                if (GUI.Button(new Rect(210, currentYPosition, 70, 30), "Save"))
-                {
-                    if (Utils.isPlayer && !string.IsNullOrEmpty(newWaypointName))
-                    {
-                        WaypointSystem.AddWaypoint(
-                            newWaypointName,
-                            PlayerControl.LocalPlayer.transform.position,
-                            Utils.getCurrentMapID()
-                        );
-                        newWaypointName = "New Waypoint";
-                    }
-                }
-                currentYPosition += 40;
-                
-                // Clear all button
-                if (GUI.Button(new Rect(20, currentYPosition, 280, 30), "Clear All Waypoints"))
-                {
-                    WaypointSystem.ClearAllWaypoints();
-                }
-                currentYPosition += 40;
-                
-                // Waypoints list
-                int currentMapWaypoints = WaypointSystem.Waypoints.Count(w => w.mapId == Utils.getCurrentMapID());
-                GUI.Label(new Rect(20, currentYPosition, 280, 30), $"Waypoints ({currentMapWaypoints}):");
-                currentYPosition += 30;
-                
-                // Scroll view for waypoints
-                waypointScrollPos = GUI.BeginScrollView(new Rect(10, currentYPosition, 280, 200), waypointScrollPos, new Rect(0, 0, 260, currentMapWaypoints * 60));
-                
-                int waypointY = 0;
                 foreach (var wp in WaypointSystem.Waypoints)
                 {
                     // Only show waypoints for current map
                     if (wp.mapId == Utils.getCurrentMapID())
                     {
-                        // Waypoint info
-                        GUI.Label(new Rect(10, waypointY, 150, 20), wp.name);
-                        GUI.Label(new Rect(10, waypointY + 20, 150, 20), $"Saved: {wp.timestamp}");
+                        hasWaypoints = true;
+                        
+                        // Waypoint info label
+                        GUI.Label(new Rect(30, waypointY, 150, 30), $"{wp.name} ({wp.timestamp})");
                         
                         // Teleport button
-                        if (GUI.Button(new Rect(170, waypointY, 80, 30), "Teleport"))
+                        if (GUI.Button(new Rect(190, waypointY, 40, 30), "TP"))
                         {
                             WaypointSystem.TeleportToWaypoint(wp.name);
                         }
                         
                         // Remove button
-                        if (GUI.Button(new Rect(170, waypointY + 35, 80, 20), "Remove"))
+                        if (GUI.Button(new Rect(235, waypointY, 40, 30), "X"))
                         {
                             WaypointSystem.RemoveWaypoint(wp.name);
                         }
                         
-                        waypointY += 60;
+                        waypointY += 35;
                     }
                 }
                 
-                GUI.EndScrollView();
-                currentYPosition += 210;
+                if (!hasWaypoints)
+                {
+                    GUI.Label(new Rect(30, currentYPosition, 250, 30), "No waypoints saved for this map");
+                    currentYPosition += 35;
+                }
+                else
+                {
+                    currentYPosition = waypointY;
+                }
+                
+                currentYPosition += 10;
                 continue;
             }
             
@@ -563,7 +536,6 @@ public class MenuUI : MonoBehaviour
         GUI.DragWindow(); //Allows dragging the GUI window with mouse
     }
 
-
     // Dynamically calculate the window's height depending on
     // The number of toggles & group expansion
     private int CalculateWindowHeight()
@@ -582,7 +554,11 @@ public class MenuUI : MonoBehaviour
             // Special height for Waypoints group
             if (group.name == "Waypoints")
             {
-                totalHeight += 320; // Fixed height for waypoints UI
+                int waypointCount = WaypointSystem.Waypoints.Count(w => w.mapId == Utils.getCurrentMapID());
+                if (waypointCount == 0)
+                    totalHeight += 70; // Height for "No waypoints" message
+                else
+                    totalHeight += 40 + (waypointCount * 35); // Height for waypoints list
                 continue;
             }
             
@@ -601,7 +577,6 @@ public class MenuUI : MonoBehaviour
 
         return totalHeight;
     }
-
 
     // Closes all expanded groups other than indexToKeepOpen
     private void CloseAllGroupsExcept(int indexToKeepOpen)
