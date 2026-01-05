@@ -14,7 +14,8 @@ public static class MalumCheats
 
         if (Utils.isMeeting)
         { 
-            // Store reference BEFORE closing
+            // Simply hide the meeting UI but don't destroy it
+            // This keeps the meeting object alive
             Utils.closedMeetingHud = MeetingHud.Instance;
             
             // Hide the meeting UI
@@ -27,7 +28,7 @@ public static class MalumCheats
             ShipStatus.Instance.EmergencyCooldown = GameManager.Instance.LogicOptions.GetEmergencyCooldown();
             Camera.main.GetComponent<FollowerCamera>().Locked = false;
             DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
-            ControllerManager.Instance.ResetAll();
+            ControllerManager.Instance.CloseAndResetAll();
         }
         else if (ExileController.Instance)
         { // Ends exile cutscene if it's playing
@@ -44,11 +45,13 @@ public static class MalumCheats
 
         if (Utils.closedMeetingHud != null)
         {
-            // Re-enable the meeting UI
+            // Simply make the old meeting visible again
             Utils.closedMeetingHud.gameObject.SetActive(true);
             
-            // Force the game to re-open the meeting
-            DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(PlayerControl.LocalPlayer);
+            // Don't call OpenMeetingRoom - that creates a NEW meeting
+            // Just update the UI state
+            DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
+            Camera.main.GetComponent<FollowerCamera>().Locked = true;
             
             // Clear the stored reference
             Utils.closedMeetingHud = null;
