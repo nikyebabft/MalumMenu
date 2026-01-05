@@ -9,65 +9,44 @@ namespace MalumMenu;
 public static class MalumCheats
 {
     public static void closeMeetingCheat()
-{
-    if (!CheatToggles.closeMeeting) return;
-
-    if (Utils.isMeeting)
-    { 
-        // Store the meeting and its position
-        Utils.closedMeetingHud = MeetingHud.Instance;
-        Utils.closedMeetingPosition = MeetingHud.Instance.transform.position;
-        
-        // Move the meeting FAR off-screen instead of disabling it
-        MeetingHud.Instance.transform.position = new Vector3(9999f, 9999f, 9999f);
-        
-        // Re-enable gameplay
-        DestroyableSingleton<HudManager>.Instance.StartCoroutine(
-            DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
-        PlayerControl.LocalPlayer.SetKillTimer(GameManager.Instance.LogicOptions.GetKillCooldown());
-        ShipStatus.Instance.EmergencyCooldown = GameManager.Instance.LogicOptions.GetEmergencyCooldown();
-        Camera.main.GetComponent<FollowerCamera>().Locked = false;
-        DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
-        ControllerManager.Instance.CloseAndResetAll();
-    }
-    else if (ExileController.Instance)
-    { // Ends exile cutscene if it's playing
-        ExileController.Instance.ReEnableGameplay();
-        ExileController.Instance.WrapUp();
-    }
-
-    CheatToggles.closeMeeting = false;
-}
-
-public static void openMeetingCheat()
-{
-    if (!CheatToggles.openMeeting) return;
-
-    if (Utils.closedMeetingHud != null)
     {
-        // Move the meeting back to its original position
-        Utils.closedMeetingHud.transform.position = Utils.closedMeetingPosition;
-        
-        // Re-disable gameplay to focus on meeting
-        DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
-        Camera.main.GetComponent<FollowerCamera>().Locked = true;
-        
-        // Clear the stored references
-        Utils.closedMeetingHud = null;
-        Utils.closedMeetingPosition = Vector3.zero;
-    }
+        if (!CheatToggles.closeMeeting) return;
 
-    CheatToggles.openMeeting = false;
-}
+        if (Utils.isMeeting)
+        { 
+            // Store the meeting and its position
+            Utils.closedMeetingHud = MeetingHud.Instance;
+            Utils.closedMeetingPosition = MeetingHud.Instance.transform.position;
+            
+            // Move the meeting FAR off-screen instead of disabling it
+            MeetingHud.Instance.transform.position = new Vector3(9999f, 9999f, 9999f);
+            
+            // Re-enable gameplay
+            DestroyableSingleton<HudManager>.Instance.StartCoroutine(
+                DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
+            PlayerControl.LocalPlayer.SetKillTimer(GameManager.Instance.LogicOptions.GetKillCooldown());
+            ShipStatus.Instance.EmergencyCooldown = GameManager.Instance.LogicOptions.GetEmergencyCooldown();
+            Camera.main.GetComponent<FollowerCamera>().Locked = false;
+            DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
+            ControllerManager.Instance.CloseAndResetAll();
+        }
+        else if (ExileController.Instance)
+        { // Ends exile cutscene if it's playing
+            ExileController.Instance.ReEnableGameplay();
+            ExileController.Instance.WrapUp();
+        }
+
+        CheatToggles.closeMeeting = false;
+    }
 
     public static void openMeetingCheat()
     {
         if (!CheatToggles.openMeeting) return;
-    
-        if (Utils.closedMeetingHud != null && Utils.closedMeetingPosition.HasValue)
+
+        if (Utils.closedMeetingHud != null)
         {
             // Move the meeting back to its original position
-            Utils.closedMeetingHud.transform.position = Utils.closedMeetingPosition.Value;
+            Utils.closedMeetingHud.transform.position = Utils.closedMeetingPosition;
             
             // Re-disable gameplay to focus on meeting
             DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
@@ -75,9 +54,9 @@ public static void openMeetingCheat()
             
             // Clear the stored references
             Utils.closedMeetingHud = null;
-            Utils.closedMeetingPosition = null;
+            Utils.closedMeetingPosition = Vector3.zero;
         }
-    
+
         CheatToggles.openMeeting = false;
     }
 
