@@ -129,7 +129,7 @@ public class MenuUI : MonoBehaviour
                 x => CheatToggles.unfixableLights = x),
             new ToggleInfo(" Report Body", () => CheatToggles.reportBody, x => CheatToggles.reportBody = x),
             new ToggleInfo(" Close Meeting", () => CheatToggles.closeMeeting, x => CheatToggles.closeMeeting = x),
-            new ToggleInfo(" Open Meeting", () => CheatToggles.openMeeting, x => CheatToggles.openMeeting = x),
+            new ToggleInfo(" Open Meeting", () => false, x => CheatToggles.openMeeting = true), // Button behaviour
             new ToggleInfo(" Auto-Open Doors On Use", () => CheatToggles.autoOpenDoorsOnUse, x => CheatToggles.autoOpenDoorsOnUse = x)
         ], [
             new SubmenuInfo("Sabotage", false, [
