@@ -9,52 +9,73 @@ namespace MalumMenu;
 public static class MalumCheats
 {
     public static void closeMeetingCheat()
-    {
-        if (!CheatToggles.closeMeeting) return;
+{
+    if (!CheatToggles.closeMeeting) return;
 
-        if (Utils.isMeeting && MeetingHud.Instance != null)
-        { 
-            // Instead of destroying, just disable the meeting HUD
-            MeetingHud.Instance.gameObject.SetActive(false);
-            
-            // Keep a reference to reopen later
-            Utils.closedMeetingHud = MeetingHud.Instance;
-
-            // Gameplay must be reenabled
-            DestroyableSingleton<HudManager>.Instance.StartCoroutine(
-                DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
-            PlayerControl.LocalPlayer.SetKillTimer(GameManager.Instance.LogicOptions.GetKillCooldown());
-            ShipStatus.Instance.EmergencyCooldown = GameManager.Instance.LogicOptions.GetEmergencyCooldown();
-            Camera.main.GetComponent<FollowerCamera>().Locked = false;
-            DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
-            ControllerManager.Instance.CloseAndResetAll();
-        }
-        else if (ExileController.Instance)
-        { // Ends exile cutscene if it's playing
-            ExileController.Instance.ReEnableGameplay();
-            ExileController.Instance.WrapUp();
+    if (Utils.isMeeting && MeetingHud.Instance != null)
+    { 
+        // Store a reference BEFORE disabling
+        Utils.closedMeetingHud = MeetingHud.Instance;
+        
+        // Instead of destroying, just disable the meeting HUD
+        MeetingHud.Instance.gameObject.SetActive(false);
+        
+        // Also need to clear the MeetingHud.Instance reference
+        // This is important because Among Us checks MeetingHud.Instance
+        var meetingHudField = typeof(MeetingHud).GetField("instance", BindingFlags.Static | BindingFlags.NonPublic);
+        if (meetingHudField != null)
+        {
+            meetingHudField.SetValue(null, null);
         }
 
-        CheatToggles.closeMeeting = false; // Button behaviour
+        // Gameplay must be reenabled
+        DestroyableSingleton<HudManager>.Instance.StartCoroutine(
+            DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
+        PlayerControl.LocalPlayer.SetKillTimer(GameManager.Instance.LogicOptions.GetKillCooldown());
+        ShipStatus.Instance.EmergencyCooldown = GameManager.Instance.LogicOptions.GetEmergencyCooldown();
+        Camera.main.GetComponent<FollowerCamera>().Locked = false;
+        DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
+        ControllerManager.Instance.CloseAndResetAll();
     }
+    else if (ExileController.Instance)
+    { // Ends exile cutscene if it's playing
+        ExileController.Instance.ReEnableGameplay();
+        ExileController.Instance.WrapUp();
+    }
+
+    CheatToggles.closeMeeting = false; // Button behaviour
+}
 
     public static void openMeetingCheat()
+{
+    if (!CheatToggles.openMeeting) return;
+
+    if (Utils.closedMeetingHud != null && !Utils.isMeeting)
     {
-        if (!CheatToggles.openMeeting) return;
-
-        if (Utils.closedMeetingHud != null && !Utils.isMeeting)
+        // Re-enable the meeting HUD
+        Utils.closedMeetingHud.gameObject.SetActive(true);
+        
+        // Restore the MeetingHud.Instance reference
+        var meetingHudField = typeof(MeetingHud).GetField("instance", BindingFlags.Static | BindingFlags.NonPublic);
+        if (meetingHudField != null)
         {
-            // Re-enable the meeting HUD
-            Utils.closedMeetingHud.gameObject.SetActive(true);
-            Utils.closedMeetingHud = null;
-            
-            // Re-disable gameplay to focus on meeting
-            DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
-            Camera.main.GetComponent<FollowerCamera>().Locked = true;
+            meetingHudField.SetValue(null, Utils.closedMeetingHud);
         }
-
-        CheatToggles.openMeeting = false;
+        
+        Utils.closedMeetingHud = null;
+        
+        // Re-disable gameplay to focus on meeting
+        DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
+        Camera.main.GetComponent<FollowerCamera>().Locked = true;
     }
+    else
+    {
+        // Optional: Show a message if there's no meeting to reopen
+        HudManager.Instance.Notifier.AddItem("No closed meeting to reopen!");
+    }
+
+    CheatToggles.openMeeting = false; // Button behaviour
+}
 
     public static void skipMeetingCheat()
     {
