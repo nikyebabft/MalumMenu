@@ -16,7 +16,6 @@ public static class MalumPPMCheats
     public static bool reportBodyActive;
     public static bool ejectPlayerActive;
     public static bool changeRoleActive;
-    public static bool nonHostTelekillActive;
     public static RoleTypes? oldRole = null;
 
     public static void reportBodyPPM()
@@ -189,48 +188,7 @@ public static class MalumPPMCheats
         }
     }
 
-    public static void nonHostTelekillPPM()
-    {
-        if (CheatToggles.nonHostTelekill)
-        {
-            if (!nonHostTelekillActive)
-            {
-                // Close any player pick menus already open & their cheats
-                if (PlayerPickMenu.playerpickMenu != null)
-                {
-                    PlayerPickMenu.playerpickMenu.Close();
-                    CheatToggles.DisablePPMCheats("nonHostTelekill");
-                }
-
-                if (Utils.isLobby)
-                {
-                    HudManager.Instance.Notifier.AddDisconnectMessage("Killing in lobby disabled for being too buggy");
-                    CheatToggles.nonHostTelekill = false;
-                    return;
-                }
-
-                // NON-HOST VERSION: Player pick menu for killing any player
-                PlayerPickMenu.openPlayerPickMenu(Utils.GetAllPlayerData(), (Action)(() =>
-                {
-                    var oldPos = PlayerControl.LocalPlayer.GetTruePosition();
-                    Utils.murderPlayer(PlayerPickMenu.targetPlayerData.Object, MurderResultFlags.Succeeded);
-                    AmongUsClient.Instance.StartCoroutine(DelayedTeleportBack(oldPos));
-                }));
-
-                nonHostTelekillActive = true;
-            }
-
-            // Deactivate cheat if menu is closed
-            if (PlayerPickMenu.playerpickMenu == null)
-            {
-                CheatToggles.nonHostTelekill = false;
-            }
-        }
-        else if (nonHostTelekillActive)
-        {
-            nonHostTelekillActive = false;
-        }
-    }
+    
 
     /// <summary>
     /// Coroutine to teleport the LocalPlayer back to their original position after a short delay.
