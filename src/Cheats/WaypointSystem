@@ -1,0 +1,194 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+using Newtonsoft.Json;
+
+namespace MalumMenu;
+
+[System.Serializable]
+public class WaypointData
+{
+    public string name;
+    public Vector3 position;
+    public int mapId;
+    public string timestamp;
+}
+
+public static class WaypointSystem
+{
+    private static List<WaypointData> waypoints = new List<WaypointData>();
+    private static Dictionary<string, GameObject> waypointMarkers = new Dictionary<string, GameObject>();
+    private static string WaypointFilePath => Path.Combine(BepInEx.Paths.ConfigPath, "MalumWaypoints.json");
+    
+    public static List<WaypointData> Waypoints => waypoints;
+    
+    static WaypointSystem()
+    {
+        LoadWaypoints();
+    }
+    
+    public static void AddWaypoint(string name, Vector3 position, int mapId)
+    {
+        // Remove existing waypoint with same name
+        RemoveWaypoint(name);
+        
+        var waypoint = new WaypointData
+        {
+            name = name,
+            position = position,
+            mapId = mapId,
+            timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+        };
+        
+        waypoints.Add(waypoint);
+        SaveWaypoints();
+        
+        // Create visual marker if in-game
+        CreateWaypointMarker(name, position);
+    }
+    
+    public static void RemoveWaypoint(string name)
+    {
+        // Remove from list
+        waypoints.RemoveAll(w => w.name == name);
+        
+        // Remove visual marker
+        if (waypointMarkers.ContainsKey(name))
+        {
+            Object.Destroy(waypointMarkers[name]);
+            waypointMarkers.Remove(name);
+        }
+        
+        SaveWaypoints();
+    }
+    
+    public static void TeleportToWaypoint(string name)
+    {
+        var waypoint = waypoints.FirstOrDefault(w => w.name == name);
+        if (waypoint != null && Utils.isPlayer)
+        {
+            PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(waypoint.position);
+        }
+    }
+    
+    public static void ClearAllWaypoints()
+    {
+        // Clear all visual markers
+        foreach (var marker in waypointMarkers.Values)
+        {
+            if (marker != null)
+                Object.Destroy(marker);
+        }
+        waypointMarkers.Clear();
+        
+        // Clear data
+        waypoints.Clear();
+        SaveWaypoints();
+    }
+    
+    public static void UpdateVisualMarkers()
+    {
+        // Only create markers for current map
+        if (!Utils.isShip) return;
+        
+        int currentMapId = Utils.getCurrentMapID();
+        
+        foreach (var wp in waypoints)
+        {
+            if (wp.mapId == currentMapId && !waypointMarkers.ContainsKey(wp.name))
+            {
+                CreateWaypointMarker(wp.name, wp.position);
+            }
+        }
+        
+        // Remove markers for wrong map
+        var toRemove = new List<string>();
+        foreach (var kvp in waypointMarkers)
+        {
+            var wp = waypoints.FirstOrDefault(w => w.name == kvp.Key);
+            if (wp == null || wp.mapId != currentMapId)
+            {
+                toRemove.Add(kvp.Key);
+            }
+        }
+        
+        foreach (var name in toRemove)
+        {
+            Object.Destroy(waypointMarkers[name]);
+            waypointMarkers.Remove(name);
+        }
+    }
+    
+    private static void CreateWaypointMarker(string name, Vector3 position)
+    {
+        if (!Utils.isShip) return;
+        
+        // Create a simple marker sprite
+        var markerObject = new GameObject($"WaypointMarker_{name}");
+        markerObject.transform.position = position + new Vector3(0, 0.5f, 0); // Slightly above ground
+        
+        var spriteRenderer = markerObject.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = Utils.LoadSprite("MalumMenu.Resources.waypoint.png", 100f);
+        if (spriteRenderer.sprite == null)
+        {
+            // Create a simple colored circle if sprite not found
+            var texture = new Texture2D(64, 64);
+            Color[] colors = new Color[64 * 64];
+            for (int i = 0; i < colors.Length; i++)
+            {
+                colors[i] = Color.cyan;
+            }
+            texture.SetPixels(colors);
+            texture.Apply();
+            
+            spriteRenderer.sprite = Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f));
+        }
+        
+        spriteRenderer.color = new Color(0, 1, 1, 0.7f); // Cyan with transparency
+        
+        // Make it always face camera
+        markerObject.AddComponent<Billboard>();
+        
+        waypointMarkers[name] = markerObject;
+    }
+    
+    private static void SaveWaypoints()
+    {
+        try
+        {
+            string json = JsonConvert.SerializeObject(waypoints, Formatting.Indented);
+            File.WriteAllText(WaypointFilePath, json);
+        }
+        catch { }
+    }
+    
+    private static void LoadWaypoints()
+    {
+        try
+        {
+            if (File.Exists(WaypointFilePath))
+            {
+                string json = File.ReadAllText(WaypointFilePath);
+                waypoints = JsonConvert.DeserializeObject<List<WaypointData>>(json) ?? new List<WaypointData>();
+            }
+        }
+        catch
+        {
+            waypoints = new List<WaypointData>();
+        }
+    }
+}
+
+// Simple billboard script to make marker face camera
+public class Billboard : MonoBehaviour
+{
+    private void LateUpdate()
+    {
+        if (Camera.main != null)
+        {
+            transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward,
+                           Camera.main.transform.rotation * Vector3.up);
+        }
+    }
+}
