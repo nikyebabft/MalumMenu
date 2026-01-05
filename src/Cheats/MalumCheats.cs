@@ -14,12 +14,12 @@ public static class MalumCheats
 
         if (Utils.isMeeting)
         { 
-            // Simply hide the meeting UI but don't destroy it
-            // This keeps the meeting object alive
+            // Store the meeting and its position
             Utils.closedMeetingHud = MeetingHud.Instance;
+            Utils.closedMeetingPosition = MeetingHud.Instance.transform.position;
             
-            // Hide the meeting UI
-            MeetingHud.Instance.gameObject.SetActive(false);
+            // Move the meeting FAR off-screen instead of disabling it
+            MeetingHud.Instance.transform.position = new Vector3(9999f, 9999f, 9999f);
             
             // Re-enable gameplay
             DestroyableSingleton<HudManager>.Instance.StartCoroutine(
@@ -43,18 +43,18 @@ public static class MalumCheats
     {
         if (!CheatToggles.openMeeting) return;
 
-        if (Utils.closedMeetingHud != null)
+        if (Utils.closedMeetingHud != null && Utils.closedMeetingPosition != null)
         {
-            // Simply make the old meeting visible again
-            Utils.closedMeetingHud.gameObject.SetActive(true);
+            // Move the meeting back to its original position
+            Utils.closedMeetingHud.transform.position = Utils.closedMeetingPosition;
             
-            // Don't call OpenMeetingRoom - that creates a NEW meeting
-            // Just update the UI state
+            // Re-disable gameplay to focus on meeting
             DestroyableSingleton<HudManager>.Instance.SetHudActive(false);
             Camera.main.GetComponent<FollowerCamera>().Locked = true;
             
-            // Clear the stored reference
+            // Clear the stored references
             Utils.closedMeetingHud = null;
+            Utils.closedMeetingPosition = null;
         }
 
         CheatToggles.openMeeting = false;
