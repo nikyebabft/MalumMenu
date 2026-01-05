@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 
 namespace MalumMenu;
 
-[System.Serializable]
 public class WaypointData
 {
     public string name;
@@ -17,15 +15,8 @@ public class WaypointData
 public static class WaypointSystem
 {
     private static List<WaypointData> waypoints = new List<WaypointData>();
-    private static Dictionary<string, GameObject> waypointMarkers = new Dictionary<string, GameObject>();
-    private static string WaypointFilePath => Path.Combine(BepInEx.Paths.ConfigPath, "MalumWaypoints.json");
     
     public static List<WaypointData> Waypoints => waypoints;
-    
-    static WaypointSystem()
-    {
-        LoadWaypoints();
-    }
     
     public static void AddWaypoint(string name, Vector3 position, int mapId)
     {
@@ -37,29 +28,16 @@ public static class WaypointSystem
             name = name,
             position = position,
             mapId = mapId,
-            timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+            timestamp = System.DateTime.Now.ToString("HH:mm")
         };
         
         waypoints.Add(waypoint);
-        SaveWaypoints();
-        
-        // Create visual marker if in-game
-        CreateWaypointMarker(name, position);
     }
     
     public static void RemoveWaypoint(string name)
     {
         // Remove from list
         waypoints.RemoveAll(w => w.name == name);
-        
-        // Remove visual marker
-        if (waypointMarkers.ContainsKey(name))
-        {
-            Object.Destroy(waypointMarkers[name]);
-            waypointMarkers.Remove(name);
-        }
-        
-        SaveWaypoints();
     }
     
     public static void TeleportToWaypoint(string name)
@@ -73,242 +51,11 @@ public static class WaypointSystem
     
     public static void ClearAllWaypoints()
     {
-        // Clear all visual markers
-        foreach (var marker in waypointMarkers.Values)
-        {
-            if (marker != null)
-                Object.Destroy(marker);
-        }
-        waypointMarkers.Clear();
-        
-        // Clear data
         waypoints.Clear();
-        SaveWaypoints();
     }
     
     public static void UpdateVisualMarkers()
     {
-        // Only create markers for current map
-        if (!Utils.isShip) return;
-        
-        int currentMapId = Utils.getCurrentMapID();
-        
-        foreach (var wp in waypoints)
-        {
-            if (wp.mapId == currentMapId && !waypointMarkers.ContainsKey(wp.name))
-            {
-                CreateWaypointMarker(wp.name, wp.position);
-            }
-        }
-        
-        // Remove markers for wrong map
-        var toRemove = new List<string>();
-        foreach (var kvp in waypointMarkers)
-        {
-            var wp = waypoints.FirstOrDefault(w => w.name == kvp.Key);
-            if (wp == null || wp.mapId != currentMapId)
-            {
-                toRemove.Add(kvp.Key);
-            }
-        }
-        
-        foreach (var name in toRemove)
-        {
-            if (waypointMarkers.ContainsKey(name))
-            {
-                Object.Destroy(waypointMarkers[name]);
-                waypointMarkers.Remove(name);
-            }
-        }
-    }
-    
-    private static void CreateWaypointMarker(string name, Vector3 position)
-    {
-        if (!Utils.isShip) return;
-        
-        // Create a text marker instead of sprite
-        var markerObject = new GameObject($"WaypointMarker_{name}");
-        markerObject.transform.position = position + new Vector3(0, 1f, 0); // Above position
-        
-        // Create a TextMesh for emoji/text display
-        var textMesh = markerObject.AddComponent<TextMesh>();
-        textMesh.text = "📍"; // Pin emoji
-        textMesh.fontSize = 50;
-        textMesh.characterSize = 0.1f;
-        textMesh.color = Color.cyan;
-        textMesh.anchor = TextAnchor.MiddleCenter;
-        textMesh.alignment = TextAlignment.Center;
-        
-        // Make it always face camera
-        markerObject.AddComponent<Billboard>();
-        
-        waypointMarkers[name] = markerObject;
-    }
-    
-    private static void SaveWaypoints()
-    {
-        try
-        {
-            // Simple JSON serialization without Newtonsoft
-            var jsonLines = new List<string>();
-            jsonLines.Add("[");
-            
-            for (int i = 0; i < waypoints.Count; i++)
-            {
-                var wp = waypoints[i];
-                var json = $@"    {{
-        ""name"": ""{EscapeJsonString(wp.name)}"",
-        ""position"": {{""x"": {wp.position.x.ToString(System.Globalization.CultureInfo.InvariantCulture)}, ""y"": {wp.position.y.ToString(System.Globalization.CultureInfo.InvariantCulture)}, ""z"": {wp.position.z.ToString(System.Globalization.CultureInfo.InvariantCulture)}}},
-        ""mapId"": {wp.mapId},
-        ""timestamp"": ""{EscapeJsonString(wp.timestamp)}""
-    }}";
-                
-                if (i < waypoints.Count - 1)
-                    json += ",";
-                
-                jsonLines.Add(json);
-            }
-            
-            jsonLines.Add("]");
-            
-            File.WriteAllLines(WaypointFilePath, jsonLines);
-        }
-        catch { }
-    }
-    
-    private static void LoadWaypoints()
-    {
-        try
-        {
-            if (File.Exists(WaypointFilePath))
-            {
-                string json = File.ReadAllText(WaypointFilePath);
-                
-                // Simple JSON parsing
-                waypoints = ParseWaypointsJson(json);
-            }
-        }
-        catch
-        {
-            waypoints = new List<WaypointData>();
-        }
-    }
-    
-    private static List<WaypointData> ParseWaypointsJson(string json)
-    {
-        var result = new List<WaypointData>();
-        
-        try
-        {
-            // Remove whitespace and split into lines
-            json = json.Replace("\r", "").Replace("\n", "").Replace(" ", "");
-            
-            // Check if it's an array
-            if (!json.StartsWith("[") || !json.EndsWith("]"))
-                return result;
-            
-            // Remove brackets
-            json = json.Substring(1, json.Length - 2);
-            
-            // Split by objects
-            var objects = SplitJsonObjects(json);
-            
-            foreach (var obj in objects)
-            {
-                var waypoint = ParseWaypointObject(obj);
-                if (waypoint != null)
-                    result.Add(waypoint);
-            }
-        }
-        catch { }
-        
-        return result;
-    }
-    
-    private static List<string> SplitJsonObjects(string json)
-    {
-        var objects = new List<string>();
-        int depth = 0;
-        int start = 0;
-        
-        for (int i = 0; i < json.Length; i++)
-        {
-            if (json[i] == '{')
-                depth++;
-            else if (json[i] == '}')
-            {
-                depth--;
-                if (depth == 0)
-                {
-                    objects.Add(json.Substring(start, i - start + 1));
-                    start = i + 2; // Skip comma and next char
-                }
-            }
-        }
-        
-        return objects;
-    }
-    
-    private static WaypointData ParseWaypointObject(string json)
-    {
-        try
-        {
-            var waypoint = new WaypointData();
-            
-            // Parse name
-            var nameMatch = System.Text.RegularExpressions.Regex.Match(json, @"""name"":""([^""]*)""");
-            if (nameMatch.Success)
-                waypoint.name = UnescapeJsonString(nameMatch.Groups[1].Value);
-            
-            // Parse position
-            var posMatch = System.Text.RegularExpressions.Regex.Match(json, @"""position"":\{""x"":([^,]*),""y"":([^,]*),""z"":([^}]*)\}");
-            if (posMatch.Success)
-            {
-                waypoint.position = new Vector3(
-                    float.Parse(posMatch.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture),
-                    float.Parse(posMatch.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture),
-                    float.Parse(posMatch.Groups[3].Value, System.Globalization.CultureInfo.InvariantCulture)
-                );
-            }
-            
-            // Parse mapId
-            var mapIdMatch = System.Text.RegularExpressions.Regex.Match(json, @"""mapId"":([^,]*)");
-            if (mapIdMatch.Success)
-                waypoint.mapId = int.Parse(mapIdMatch.Groups[1].Value);
-            
-            // Parse timestamp
-            var timeMatch = System.Text.RegularExpressions.Regex.Match(json, @"""timestamp"":""([^""]*)""");
-            if (timeMatch.Success)
-                waypoint.timestamp = UnescapeJsonString(timeMatch.Groups[1].Value);
-            
-            return waypoint;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-    
-    private static string EscapeJsonString(string input)
-    {
-        return input.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
-    }
-    
-    private static string UnescapeJsonString(string input)
-    {
-        return input.Replace("\\\"", "\"").Replace("\\\\", "\\").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\t", "\t");
-    }
-}
-
-// Simple billboard script to make marker face camera
-public class Billboard : MonoBehaviour
-{
-    private void LateUpdate()
-    {
-        if (Camera.main != null)
-        {
-            transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward,
-                           Camera.main.transform.rotation * Vector3.up);
-        }
+        // Empty - no visual markers for now
     }
 }
