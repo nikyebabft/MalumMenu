@@ -295,13 +295,18 @@ public class MenuUI : MonoBehaviour
             }
         }
 
+        // FIXED: Using lambda expressions to avoid delegate type issues
         if (MalumMenu.useHorizontalUI.Value)
         {
-            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, HorizontalWindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
+            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, 
+                (id) => HorizontalWindowFunction(id), 
+                "MalumMenu v" + MalumMenu.malumVersion);
         }
         else
         {
-            windowRect = GUI.Window(0, windowRect, WindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
+            windowRect = GUI.Window(0, windowRect, 
+                (id) => WindowFunction(id), 
+                "MalumMenu v" + MalumMenu.malumVersion);
         }
     }
 
