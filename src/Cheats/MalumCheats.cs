@@ -20,7 +20,7 @@ public static class MalumCheats
         { 
             // Destroy MeetingHud window gameobject
             MeetingHud.Instance.DespawnOnDestroy = false;
-            Object.Destroy(MeetingHud.Instance.gameObject);
+            UnityEngine.Object.Destroy(MeetingHud.Instance.gameObject); // FIXED: Added UnityEngine. prefix
 
             // Gameplay must be reenabled
             DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
@@ -552,7 +552,7 @@ public static class WaypointSystem
         // Remove visual marker
         if (waypointMarkers.ContainsKey(name))
         {
-            Object.Destroy(waypointMarkers[name]);
+            UnityEngine.Object.Destroy(waypointMarkers[name]); // FIXED: Added UnityEngine. prefix
             waypointMarkers.Remove(name);
         }
         
@@ -593,7 +593,7 @@ public static class WaypointSystem
         foreach (var marker in waypointMarkers.Values)
         {
             if (marker != null)
-                Object.Destroy(marker);
+                UnityEngine.Object.Destroy(marker); // FIXED: Added UnityEngine. prefix
         }
         waypointMarkers.Clear();
         
@@ -640,7 +640,7 @@ public static class WaypointSystem
         {
             if (waypointMarkers.ContainsKey(name))
             {
-                Object.Destroy(waypointMarkers[name]);
+                UnityEngine.Object.Destroy(waypointMarkers[name]); // FIXED: Added UnityEngine. prefix
                 waypointMarkers.Remove(name);
             }
         }
