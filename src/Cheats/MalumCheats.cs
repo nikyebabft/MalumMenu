@@ -561,10 +561,24 @@ public static class WaypointSystem
     
     public static void RenameWaypoint(string oldName, string newName)
     {
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            Debug.Log("Waypoint name cannot be empty");
+            return;
+        }
+        
+        // Check if new name already exists
+        if (waypoints.Any(w => w.name == newName))
+        {
+            Debug.Log($"Waypoint with name '{newName}' already exists");
+            return;
+        }
+        
         var waypoint = waypoints.FirstOrDefault(w => w.name == oldName);
         if (waypoint != null)
         {
             waypoint.name = newName;
+            waypoint.timestamp = System.DateTime.Now.ToString("HH:mm");
             SaveWaypoints();
             
             // Update marker name if exists
@@ -574,6 +588,13 @@ public static class WaypointSystem
                 waypointMarkers.Remove(oldName);
                 waypointMarkers[newName] = marker;
                 marker.name = $"WaypointMarker_{newName}";
+                
+                // Update text on marker if it's a TextMesh
+                var textMesh = marker.GetComponent<TextMesh>();
+                if (textMesh != null)
+                {
+                    textMesh.text = $"📍 {newName}";
+                }
             }
         }
     }
