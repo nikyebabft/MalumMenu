@@ -20,7 +20,7 @@ public static class MalumCheats
         { 
             // Destroy MeetingHud window gameobject
             MeetingHud.Instance.DespawnOnDestroy = false;
-            UnityEngine.Object.Destroy(MeetingHud.Instance.gameObject); // FIXED: Added UnityEngine. prefix
+            UnityEngine.Object.Destroy(MeetingHud.Instance.gameObject);
 
             // Gameplay must be reenabled
             DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.black, Color.clear, 0.2f, false));
@@ -479,7 +479,7 @@ public static class MalumCheats
     {
         if (!CheatToggles.saveWaypoint) return;
         
-        if (Utils.isPlayer)
+        if (Utils.isPlayer && Utils.isShip)
         {
             string name = $"WP_{System.DateTime.Now:HHmmss}";
             WaypointSystem.AddWaypoint(
@@ -514,7 +514,6 @@ public class WaypointData
 public static class WaypointSystem
 {
     private static List<WaypointData> waypoints = new List<WaypointData>();
-    private static Dictionary<string, GameObject> waypointMarkers = new Dictionary<string, GameObject>();
     private static string WaypointFilePath => Path.Combine(BepInEx.Paths.ConfigPath, "MalumWaypoints.json");
     
     public static List<WaypointData> Waypoints => waypoints;
@@ -539,23 +538,12 @@ public static class WaypointSystem
         
         waypoints.Add(waypoint);
         SaveWaypoints();
-        
-        // Create visual marker if in-game
-        CreateWaypointMarker(name, position);
     }
     
     public static void RemoveWaypoint(string name)
     {
         // Remove from list
         waypoints.RemoveAll(w => w.name == name);
-        
-        // Remove visual marker
-        if (waypointMarkers.ContainsKey(name))
-        {
-            UnityEngine.Object.Destroy(waypointMarkers[name]); // FIXED: Added UnityEngine. prefix
-            waypointMarkers.Remove(name);
-        }
-        
         SaveWaypoints();
     }
     
@@ -580,29 +568,13 @@ public static class WaypointSystem
             waypoint.name = newName;
             waypoint.timestamp = System.DateTime.Now.ToString("HH:mm");
             SaveWaypoints();
-            
-            // Update marker name if exists
-            if (waypointMarkers.ContainsKey(oldName))
-            {
-                var marker = waypointMarkers[oldName];
-                waypointMarkers.Remove(oldName);
-                waypointMarkers[newName] = marker;
-                marker.name = $"WaypointMarker_{newName}";
-                
-                // Update text on marker if it's a TextMesh
-                var textMesh = marker.GetComponent<TextMesh>();
-                if (textMesh != null)
-                {
-                    textMesh.text = $"📍 {newName}";
-                }
-            }
         }
     }
     
     public static void TeleportToWaypoint(string name)
     {
         var waypoint = waypoints.FirstOrDefault(w => w.name == name);
-        if (waypoint != null && Utils.isPlayer && Utils.getCurrentMapID() == waypoint.mapId)
+        if (waypoint != null && Utils.isPlayer && Utils.isShip && Utils.getCurrentMapID() == waypoint.mapId)
         {
             PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(waypoint.position);
         }
@@ -610,15 +582,6 @@ public static class WaypointSystem
     
     public static void ClearAllWaypoints()
     {
-        // Clear all visual markers
-        foreach (var marker in waypointMarkers.Values)
-        {
-            if (marker != null)
-                UnityEngine.Object.Destroy(marker); // FIXED: Added UnityEngine. prefix
-        }
-        waypointMarkers.Clear();
-        
-        // Clear data
         waypoints.Clear();
         SaveWaypoints();
     }
@@ -633,61 +596,8 @@ public static class WaypointSystem
     
     public static void UpdateVisualMarkers()
     {
-        // Only create markers for current map
-        if (!Utils.isShip) return;
-        
-        int currentMapId = Utils.getCurrentMapID();
-        
-        foreach (var wp in waypoints)
-        {
-            if (wp.mapId == currentMapId && !waypointMarkers.ContainsKey(wp.name))
-            {
-                CreateWaypointMarker(wp.name, wp.position);
-            }
-        }
-        
-        // Remove markers for wrong map or non-existent waypoints
-        var toRemove = new List<string>();
-        foreach (var kvp in waypointMarkers)
-        {
-            var wp = waypoints.FirstOrDefault(w => w.name == kvp.Key);
-            if (wp == null || wp.mapId != currentMapId)
-            {
-                toRemove.Add(kvp.Key);
-            }
-        }
-        
-        foreach (var name in toRemove)
-        {
-            if (waypointMarkers.ContainsKey(name))
-            {
-                UnityEngine.Object.Destroy(waypointMarkers[name]); // FIXED: Added UnityEngine. prefix
-                waypointMarkers.Remove(name);
-            }
-        }
-    }
-    
-    private static void CreateWaypointMarker(string name, Vector3 position)
-    {
-        if (!Utils.isShip) return;
-        
-        // Create a text marker instead of sprite
-        var markerObject = new GameObject($"WaypointMarker_{name}");
-        markerObject.transform.position = position + new Vector3(0, 1f, 0); // Above position
-        
-        // Create a TextMesh for emoji/text display
-        var textMesh = markerObject.AddComponent<TextMesh>();
-        textMesh.text = "📍"; // Pin emoji
-        textMesh.fontSize = 50;
-        textMesh.characterSize = 0.1f;
-        textMesh.color = Color.cyan;
-        textMesh.anchor = TextAnchor.MiddleCenter;
-        textMesh.alignment = TextAlignment.Center;
-        
-        // Make it always face camera
-        markerObject.AddComponent<Billboard>();
-        
-        waypointMarkers[name] = markerObject;
+        // REMOVED: Visual markers were causing TextMesh errors
+        // Function kept for compatibility but does nothing
     }
     
     private static void SaveWaypoints()
@@ -849,18 +759,5 @@ public static class WaypointSystem
     {
         if (string.IsNullOrEmpty(input)) return "";
         return input.Replace("\\\"", "\"").Replace("\\\\", "\\").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\t", "\t");
-    }
-}
-
-// Simple billboard script to make marker face camera
-public class Billboard : MonoBehaviour
-{
-    private void LateUpdate()
-    {
-        if (Camera.main != null)
-        {
-            transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward,
-                           Camera.main.transform.rotation * Vector3.up);
-        }
     }
 }
