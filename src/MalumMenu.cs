@@ -129,7 +129,7 @@ public partial class MalumMenu : BasePlugin
             MalumCheats.forceStartGameCheat();
             MalumCheats.completeMyTasksCheat();
             MalumCheats.ReviveCheat();
-            WaypointSystem.UpdateVisualMarkers();
+            //WaypointSystem.UpdateVisualMarkers();
         }
         catch { }
     }
