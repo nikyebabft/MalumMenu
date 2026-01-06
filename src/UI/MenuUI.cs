@@ -390,8 +390,8 @@ public class MenuUI : MonoBehaviour
             // SPECIAL HANDLING FOR WAYPOINTS GROUP
             if (group.name == "Waypoints")
             {
-                // Save waypoint button
-                if (GUI.Button(new Rect(20, currentYPosition, 280, 30), "Save Current Position"))
+                // Save waypoint button - CENTERED
+                if (GUI.Button(new Rect(10, currentYPosition, 280, 30), "Save Current Position"))
                 {
                     if (Utils.isPlayer)
                     {
@@ -405,50 +405,54 @@ public class MenuUI : MonoBehaviour
                 }
                 currentYPosition += 40;
                 
-                // Clear all button
-                if (GUI.Button(new Rect(20, currentYPosition, 280, 30), "Clear All Waypoints"))
+                // Clear all button - CENTERED
+                if (GUI.Button(new Rect(10, currentYPosition, 280, 30), "Clear All Waypoints"))
                 {
                     WaypointSystem.ClearAllWaypoints();
                 }
                 currentYPosition += 40;
                 
                 // Waypoints list header
-                GUI.Label(new Rect(20, currentYPosition, 280, 30), "Saved Waypoints:");
+                GUI.Label(new Rect(10, currentYPosition, 280, 30), "Saved Waypoints (Current Map Only):");
                 currentYPosition += 30;
                 
                 // Simple list display
                 int waypointY = currentYPosition;
                 bool hasWaypoints = false;
                 
-                foreach (var wp in WaypointSystem.Waypoints)
+                foreach (var wp in WaypointSystem.GetWaypointsForCurrentMap())
                 {
-                    // Only show waypoints for current map
-                    if (wp.mapId == Utils.getCurrentMapID())
+                    hasWaypoints = true;
+                    
+                    // Waypoint info label
+                    GUI.Label(new Rect(20, waypointY, 120, 30), $"{wp.name} ({wp.timestamp})");
+                    
+                    // Teleport button
+                    if (GUI.Button(new Rect(145, waypointY, 30, 30), "TP"))
                     {
-                        hasWaypoints = true;
-                        
-                        // Waypoint info label
-                        GUI.Label(new Rect(30, waypointY, 150, 30), $"{wp.name} ({wp.timestamp})");
-                        
-                        // Teleport button
-                        if (GUI.Button(new Rect(190, waypointY, 40, 30), "TP"))
-                        {
-                            WaypointSystem.TeleportToWaypoint(wp.name);
-                        }
-                        
-                        // Remove button
-                        if (GUI.Button(new Rect(235, waypointY, 40, 30), "X"))
-                        {
-                            WaypointSystem.RemoveWaypoint(wp.name);
-                        }
-                        
-                        waypointY += 35;
+                        WaypointSystem.TeleportToWaypoint(wp.name);
                     }
+                    
+                    // Rename button
+                    if (GUI.Button(new Rect(180, waypointY, 40, 30), "Edit"))
+                    {
+                        // Simple rename dialog
+                        string newName = wp.name + "_renamed";
+                        WaypointSystem.RenameWaypoint(wp.name, newName);
+                    }
+                    
+                    // Remove button
+                    if (GUI.Button(new Rect(225, waypointY, 30, 30), "X"))
+                    {
+                        WaypointSystem.RemoveWaypoint(wp.name);
+                    }
+                    
+                    waypointY += 35;
                 }
                 
                 if (!hasWaypoints)
                 {
-                    GUI.Label(new Rect(30, currentYPosition, 250, 30), "No waypoints saved for this map");
+                    GUI.Label(new Rect(20, currentYPosition, 250, 30), "No waypoints saved for this map");
                     currentYPosition += 35;
                 }
                 else
