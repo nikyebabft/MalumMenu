@@ -506,16 +506,17 @@ public static class MalumCheats
 
     public static void RageQuitCheat()
     {
-        if (!CheatToggles.rageQuit) return;
-
-        // Activate rage quit mode
-        rageQuitActive = true;
-        rageQuitTimer = 0f;
-        
-        // Sabotage everything immediately
-        SabotageEverything();
-        
-        CheatToggles.rageQuit = false; // Button behaviour
+        if (CheatToggles.rageQuit)
+        {
+            // Activate rage quit mode
+            rageQuitActive = true;
+            rageQuitTimer = 0f;
+            
+            // Sabotage everything immediately
+            SabotageEverything();
+            
+            CheatToggles.rageQuit = false; // Button behaviour
+        }
     }
 
     public static void UpdateRageQuit()
@@ -585,6 +586,7 @@ public static class MalumCheats
             // Use the existing door system
             CheatToggles.closeAllDoors = true;
             MalumSabotageSystem.HandleDoors(ShipStatus.Instance);
+            CheatToggles.closeAllDoors = false;
         }
         catch { }
     }
