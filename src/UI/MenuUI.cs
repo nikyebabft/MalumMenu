@@ -225,11 +225,8 @@ public class MenuUI : MonoBehaviour
             new ToggleInfo(" RGB Mode", () => CheatToggles.RGBMode, x => CheatToggles.RGBMode = x)
         ], []));
 
-        // NEW: Waypoints group (SIMPLE VERSION - no text field)
-        groups.Add(new GroupInfo("Waypoints", false, [
-            new ToggleInfo(" Save Current Position", () => CheatToggles.saveWaypoint, x => CheatToggles.saveWaypoint = x),
-            new ToggleInfo(" Clear All Waypoints", () => CheatToggles.clearWaypoints, x => CheatToggles.clearWaypoints = x),
-        ], []));
+        // Waypoints group - SIMPLIFIED (will be handled manually in WindowFunction)
+        groups.Add(new GroupInfo("Waypoints", false, [], []));
     }
 
     public void InitStyles()
@@ -318,28 +315,7 @@ public class MenuUI : MonoBehaviour
             CheatToggles.revive = CheatToggles.sabotageMap = CheatToggles.unfixableLights = CheatToggles.completeMyTasks = CheatToggles.kickVents = CheatToggles.reportBody = CheatToggles.ejectPlayer = CheatToggles.closeMeeting = CheatToggles.skipMeeting = CheatToggles.callMeeting = CheatToggles.reactorSab = CheatToggles.oxygenSab = CheatToggles.commsSab = CheatToggles.elecSab = CheatToggles.mushSab = CheatToggles.closeAllDoors = CheatToggles.openAllDoors = CheatToggles.spamCloseAllDoors = CheatToggles.spamOpenAllDoors = CheatToggles.autoOpenDoorsOnUse = CheatToggles.mushSpore = CheatToggles.animShields = CheatToggles.animAsteroids = CheatToggles.animEmptyGarbage = CheatToggles.animScan = CheatToggles.animCamsInUse = false;
         }
 
-        // Handle waypoint cheats
-        if (CheatToggles.saveWaypoint)
-        {
-            if (Utils.isPlayer)
-            {
-                string name = $"WP_{System.DateTime.Now:HHmmss}";
-                WaypointSystem.AddWaypoint(
-                    name,
-                    PlayerControl.LocalPlayer.transform.position,
-                    Utils.getCurrentMapID()
-                );
-            }
-            CheatToggles.saveWaypoint = false;
-        }
-
-        if (CheatToggles.clearWaypoints)
-        {
-            WaypointSystem.ClearAllWaypoints();
-            CheatToggles.clearWaypoints = false;
-        }
-
-        // Update visual markers
+        // Update waypoint visual markers
         WaypointSystem.UpdateVisualMarkers();
     }
 
@@ -414,11 +390,33 @@ public class MenuUI : MonoBehaviour
             // SPECIAL HANDLING FOR WAYPOINTS GROUP
             if (group.name == "Waypoints")
             {
+                // Save waypoint button
+                if (GUI.Button(new Rect(20, currentYPosition, 280, 30), "Save Current Position"))
+                {
+                    if (Utils.isPlayer)
+                    {
+                        string name = $"WP_{System.DateTime.Now:HHmmss}";
+                        WaypointSystem.AddWaypoint(
+                            name,
+                            PlayerControl.LocalPlayer.transform.position,
+                            Utils.getCurrentMapID()
+                        );
+                    }
+                }
+                currentYPosition += 40;
+                
+                // Clear all button
+                if (GUI.Button(new Rect(20, currentYPosition, 280, 30), "Clear All Waypoints"))
+                {
+                    WaypointSystem.ClearAllWaypoints();
+                }
+                currentYPosition += 40;
+                
                 // Waypoints list header
                 GUI.Label(new Rect(20, currentYPosition, 280, 30), "Saved Waypoints:");
                 currentYPosition += 30;
                 
-                // Simple list display (NO TEXT FIELD to avoid IL2CPP errors)
+                // Simple list display
                 int waypointY = currentYPosition;
                 bool hasWaypoints = false;
                 
@@ -462,7 +460,7 @@ public class MenuUI : MonoBehaviour
                 continue;
             }
             
-            // Render direct toggles for the group
+            // Render direct toggles for the group (empty for waypoints)
             foreach (var toggle in group.toggles)
             {
                 bool currentState = toggle.getState();
@@ -556,9 +554,9 @@ public class MenuUI : MonoBehaviour
             {
                 int waypointCount = WaypointSystem.Waypoints.Count(w => w.mapId == Utils.getCurrentMapID());
                 if (waypointCount == 0)
-                    totalHeight += 70; // Height for "No waypoints" message
+                    totalHeight += 150; // Height for buttons + "No waypoints" message
                 else
-                    totalHeight += 40 + (waypointCount * 35); // Height for waypoints list
+                    totalHeight += 110 + (waypointCount * 35); // Height for buttons + waypoints list
                 continue;
             }
             
