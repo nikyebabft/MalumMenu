@@ -296,13 +296,17 @@ public class MenuUI : MonoBehaviour
     
         if (MalumMenu.useHorizontalUI.Value)
         {
-            // Fix: Explicitly convert to GUI.WindowFunction
-            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, new GUI.WindowFunction(DoHorizontalWindow), "MalumMenu v" + MalumMenu.malumVersion);
+            // Try using lambda syntax
+            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, (windowId) => {
+                HorizontalWindowFunction(windowId);
+            }, "MalumMenu v" + MalumMenu.malumVersion);
         }
         else
         {
-            // Fix: Explicitly convert to GUI.WindowFunction
-            windowRect = GUI.Window(0, windowRect, new GUI.WindowFunction(DoWindow), "MalumMenu v" + MalumMenu.malumVersion);
+            // Try using lambda syntax
+            windowRect = GUI.Window(0, windowRect, (windowId) => {
+                WindowFunction(windowId);
+            }, "MalumMenu v" + MalumMenu.malumVersion);
         }
     }
 
