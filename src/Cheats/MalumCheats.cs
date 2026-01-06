@@ -499,6 +499,95 @@ public static class MalumCheats
         WaypointSystem.ClearAllWaypoints();
         CheatToggles.clearWaypoints = false;
     }
+
+    // NEW: Rage Quit cheat
+    private static float rageQuitTimer = 0f;
+    private static bool rageQuitActive = false;
+
+    public static void RageQuitCheat()
+    {
+        if (!CheatToggles.rageQuit) return;
+
+        // Activate rage quit mode
+        rageQuitActive = true;
+        rageQuitTimer = 0f;
+        
+        // Sabotage everything immediately
+        SabotageEverything();
+        
+        CheatToggles.rageQuit = false; // Button behaviour
+    }
+
+    public static void UpdateRageQuit()
+    {
+        if (!rageQuitActive || !Utils.isShip) return;
+
+        rageQuitTimer += Time.deltaTime;
+        
+        // Every 5 seconds, close all doors
+        if (rageQuitTimer >= 5f)
+        {
+            CloseAllDoors();
+            rageQuitTimer = 0f;
+        }
+    }
+
+    private static void SabotageEverything()
+    {
+        if (!Utils.isShip) return;
+
+        var shipStatus = ShipStatus.Instance;
+        var currentMapID = Utils.getCurrentMapID();
+        
+        // Sabotage lights
+        CheatToggles.elecSab = true;
+        MalumSabotageSystem.HandleElectrical(shipStatus, currentMapID);
+        
+        // Sabotage comms
+        CheatToggles.commsSab = true;
+        MalumSabotageSystem.HandleComms(shipStatus, currentMapID);
+        
+        // Sabotage reactor/oxygen based on map
+        if (currentMapID == 2 || currentMapID == 4) // Polus or Airship
+        {
+            CheatToggles.reactorSab = true;
+            MalumSabotageSystem.HandleReactor(shipStatus, currentMapID);
+        }
+        else if (currentMapID == 0 || currentMapID == 1) // Skeld or Dleks
+        {
+            CheatToggles.reactorSab = true;
+            MalumSabotageSystem.HandleReactor(shipStatus, currentMapID);
+            CheatToggles.oxygenSab = true;
+            MalumSabotageSystem.HandleOxygen(shipStatus, currentMapID);
+        }
+        else if (currentMapID == 3) // Mira HQ
+        {
+            CheatToggles.oxygenSab = true;
+            MalumSabotageSystem.HandleOxygen(shipStatus, currentMapID);
+        }
+        else if (currentMapID == 5) // Fungle
+        {
+            // Fungle has different systems
+            CheatToggles.mushSab = true;
+            MalumSabotageSystem.HandleMushMix(shipStatus, currentMapID);
+        }
+        
+        // Close all doors immediately
+        CloseAllDoors();
+    }
+
+    private static void CloseAllDoors()
+    {
+        if (!Utils.isShip) return;
+
+        try
+        {
+            // Use the existing door system
+            CheatToggles.closeAllDoors = true;
+            MalumSabotageSystem.HandleDoors(ShipStatus.Instance);
+        }
+        catch { }
+    }
 }
 
 // ====== WAYPOINT SYSTEM ======
@@ -592,12 +681,6 @@ public static class WaypointSystem
         
         int currentMapId = Utils.getCurrentMapID();
         return waypoints.Where(w => w.mapId == currentMapId).ToList();
-    }
-    
-    public static void UpdateVisualMarkers()
-    {
-        // REMOVED: Visual markers were causing TextMesh errors
-        // Function kept for compatibility but does nothing
     }
     
     private static void SaveWaypoints()
