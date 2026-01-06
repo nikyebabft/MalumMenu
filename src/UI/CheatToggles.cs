@@ -98,6 +98,7 @@ public struct CheatToggles
     public static bool mushSab;
     public static bool mushSpore;
     public static bool showDoorsMenu;
+    public static bool rageQuit;
 
     //Vents
     public static bool useVents;
