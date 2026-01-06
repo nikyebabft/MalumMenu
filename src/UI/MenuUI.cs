@@ -262,15 +262,15 @@ public class MenuUI : MonoBehaviour
     public void OnGUI()
     {
         if (!isGUIActive || isPanicked) return;
-    
+
         InitStyles();
-    
+
         if (!isDragging)
         {
             var windowHeight = CalculateWindowHeight();
             windowRect.height = windowHeight;
         }
-    
+
         if (CheatToggles.RGBMode)
         {
             GUI.backgroundColor = Color.HSVToRGB(hue, 1f, 1f);
@@ -293,20 +293,14 @@ public class MenuUI : MonoBehaviour
                 GUI.backgroundColor = uiColor;
             }
         }
-    
+
         if (MalumMenu.useHorizontalUI.Value)
         {
-            // Try using lambda syntax
-            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, (windowId) => {
-                HorizontalWindowFunction(windowId);
-            }, "MalumMenu v" + MalumMenu.malumVersion);
+            horizontalWindowRect = UnityEngine.GUI.Window(0, horizontalWindowRect, DoHorizontalWindow, "MalumMenu v" + MalumMenu.malumVersion);
         }
         else
         {
-            // Try using lambda syntax
-            windowRect = GUI.Window(0, windowRect, (windowId) => {
-                WindowFunction(windowId);
-            }, "MalumMenu v" + MalumMenu.malumVersion);
+            windowRect = UnityEngine.GUI.Window(0, windowRect, DoWindow, "MalumMenu v" + MalumMenu.malumVersion);
         }
     }
 
