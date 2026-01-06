@@ -500,13 +500,13 @@ public static class MalumCheats
         CheatToggles.clearWaypoints = false;
     }
 
-    // NEW: Rage Quit cheat
+    // NEW: Rage Quit cheat - FIXED VERSION
     private static float rageQuitTimer = 0f;
     private static bool rageQuitActive = false;
 
     public static void RageQuitCheat()
     {
-        if (CheatToggles.rageQuit)
+        if (CheatToggles.rageQuit && Utils.isShip) // Only activate in ship
         {
             // Activate rage quit mode
             rageQuitActive = true;
@@ -521,6 +521,14 @@ public static class MalumCheats
 
     public static void UpdateRageQuit()
     {
+        // AUTO-RESET: If rage quit was active but we're no longer in a ship
+        if (!Utils.isShip && rageQuitActive)
+        {
+            ResetRageQuit();
+            return;
+        }
+        
+        // Don't run if not active or not in ship
         if (!rageQuitActive || !Utils.isShip) return;
 
         rageQuitTimer += Time.deltaTime;
@@ -531,6 +539,22 @@ public static class MalumCheats
             CloseAllDoors();
             rageQuitTimer = 0f;
         }
+    }
+
+    // NEW: Method to reset rage quit state
+    public static void ResetRageQuit()
+    {
+        // Reset rage quit state
+        rageQuitActive = false;
+        rageQuitTimer = 0f;
+        
+        // Also reset door spam cheats (important!)
+        CheatToggles.closeAllDoors = false;
+        CheatToggles.openAllDoors = false;
+        CheatToggles.spamCloseAllDoors = false;
+        CheatToggles.spamOpenAllDoors = false;
+        
+        Debug.Log("Rage quit reset for new game!");
     }
 
     private static void SabotageEverything()
