@@ -242,11 +242,9 @@ public class MenuUI : MonoBehaviour
             CheatToggles.panic = false;
         }
 
-        // Update Rage Quit timer
+        // Update Rage Quit
+        MalumCheats.RageQuitCheat();
         MalumCheats.UpdateRageQuit();
-
-        // Passive cheats are always on to avoid problems
-        // CheatToggles.unlockFeatures = CheatToggles.freeCosmetics = CheatToggles.avoidBans = true;
 
         if(!Utils.isPlayer){
             CheatToggles.changeRole = CheatToggles.killAll = CheatToggles.telekillPlayer = CheatToggles.killAllCrew = CheatToggles.killAllImps = CheatToggles.teleportCursor = CheatToggles.teleportPlayer = CheatToggles.spectate = CheatToggles.freecam = CheatToggles.killPlayer = CheatToggles.protectPlayer = false;
@@ -298,11 +296,11 @@ public class MenuUI : MonoBehaviour
 
         if (MalumMenu.useHorizontalUI.Value)
         {
-            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, HorizontalWindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
+            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, new GUI.WindowFunction(HorizontalWindowFunction), "MalumMenu v" + MalumMenu.malumVersion);
         }
         else
         {
-            windowRect = GUI.Window(0, windowRect, WindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
+            windowRect = GUI.Window(0, windowRect, new GUI.WindowFunction(WindowFunction), "MalumMenu v" + MalumMenu.malumVersion);
         }
     }
 
