@@ -262,15 +262,15 @@ public class MenuUI : MonoBehaviour
     public void OnGUI()
     {
         if (!isGUIActive || isPanicked) return;
-
+    
         InitStyles();
-
+    
         if (!isDragging)
         {
             var windowHeight = CalculateWindowHeight();
             windowRect.height = windowHeight;
         }
-
+    
         if (CheatToggles.RGBMode)
         {
             GUI.backgroundColor = Color.HSVToRGB(hue, 1f, 1f);
@@ -293,14 +293,16 @@ public class MenuUI : MonoBehaviour
                 GUI.backgroundColor = uiColor;
             }
         }
-
+    
         if (MalumMenu.useHorizontalUI.Value)
         {
-            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, DoHorizontalWindow, "MalumMenu v" + MalumMenu.malumVersion);
+            // Fix: Explicitly convert to GUI.WindowFunction
+            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, new GUI.WindowFunction(DoHorizontalWindow), "MalumMenu v" + MalumMenu.malumVersion);
         }
         else
         {
-            windowRect = GUI.Window(0, windowRect, DoWindow, "MalumMenu v" + MalumMenu.malumVersion);
+            // Fix: Explicitly convert to GUI.WindowFunction
+            windowRect = GUI.Window(0, windowRect, new GUI.WindowFunction(DoWindow), "MalumMenu v" + MalumMenu.malumVersion);
         }
     }
 
