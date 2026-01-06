@@ -7,7 +7,6 @@ using HarmonyLib;
 namespace MalumMenu;
 public class MenuUI : MonoBehaviour
 {
-
     public List<GroupInfo> groups = [];
     private bool isDragging = false;
     private Rect windowRect = new(10, 10, 320, 550);
@@ -21,16 +20,8 @@ public class MenuUI : MonoBehaviour
     public GUIStyle tabTitleStyle;
     public GUIStyle tabSubtitleStyle;
     public GUIStyle separatorStyle;
-    private GUIStyle textFieldStyle;
     private float hue; // For RGB mode
 
-    // Waypoint variables
-    private Vector2 waypointScrollPos;
-    private string renameInput = "";
-    private string waypointToRename = "";
-    private bool isRenaming = false;
-
-    // Create all groups (buttons) and their toggles on start
     private void Start()
     {
         groups.Add(new GroupInfo("Player", false, [
@@ -42,7 +33,6 @@ public class MenuUI : MonoBehaviour
                 new ToggleInfo(" to Cursor", () => CheatToggles.teleportCursor, x => CheatToggles.teleportCursor = x),
                 new ToggleInfo(" to Player", () => CheatToggles.teleportPlayer, x => CheatToggles.teleportPlayer = x),
             ])
-
         ]));
 
         groups.Add(new GroupInfo("ESP", false, [
@@ -58,85 +48,55 @@ public class MenuUI : MonoBehaviour
                 new ToggleInfo(" Spectate", () => CheatToggles.spectate, x => CheatToggles.spectate = x),
                 new ToggleInfo(" Freecam", () => CheatToggles.freecam, x => CheatToggles.freecam = x)
             ]),
-
             new SubmenuInfo("Tracers", false, [
                 new ToggleInfo(" Crewmates", () => CheatToggles.tracersCrew, x => CheatToggles.tracersCrew = x),
                 new ToggleInfo(" Impostors", () => CheatToggles.tracersImps, x => CheatToggles.tracersImps = x),
                 new ToggleInfo(" Ghosts", () => CheatToggles.tracersGhosts, x => CheatToggles.tracersGhosts = x),
                 new ToggleInfo(" Dead Bodies", () => CheatToggles.tracersBodies, x => CheatToggles.tracersBodies = x),
-                new ToggleInfo(" Color-based", () => CheatToggles.colorBasedTracers,
-                    x => CheatToggles.colorBasedTracers = x)
-
+                new ToggleInfo(" Color-based", () => CheatToggles.colorBasedTracers, x => CheatToggles.colorBasedTracers = x)
             ]),
-
             new SubmenuInfo("Minimap", false, [
                 new ToggleInfo(" Crewmates", () => CheatToggles.mapCrew, x => CheatToggles.mapCrew = x),
                 new ToggleInfo(" Impostors", () => CheatToggles.mapImps, x => CheatToggles.mapImps = x),
                 new ToggleInfo(" Ghosts", () => CheatToggles.mapGhosts, x => CheatToggles.mapGhosts = x),
                 new ToggleInfo(" Color-based", () => CheatToggles.colorBasedMap, x => CheatToggles.colorBasedMap = x)
             ])
-
         ]));
 
         groups.Add(new GroupInfo("Roles", false, [
-                new ToggleInfo(" Set Fake Role", () => CheatToggles.changeRole, x => CheatToggles.changeRole = x)
-            ],
-            [
-                new SubmenuInfo("Impostor", false, [
-                    new ToggleInfo(" Kill Reach", () => CheatToggles.killReach, x => CheatToggles.killReach = x)
-                ]),
-
-                new SubmenuInfo("Shapeshifter", false, [
-                    new ToggleInfo(" No Ss Animation", () => CheatToggles.noShapeshiftAnim,
-                        x => CheatToggles.noShapeshiftAnim = x),
-
-                    new ToggleInfo(" Endless Ss Duration", () => CheatToggles.endlessSsDuration,
-                        x => CheatToggles.endlessSsDuration = x)
-
-                ]),
-
-                new SubmenuInfo("Crewmate", false, [
-                    new ToggleInfo(" Show Tasks Menu", () => CheatToggles.showTasksMenu, x => CheatToggles.showTasksMenu = x)
-                ]),
-
-                new SubmenuInfo("Tracker", false, [
-                    new ToggleInfo(" Endless Tracking", () => CheatToggles.endlessTracking,
-                        x => CheatToggles.endlessTracking = x),
-
-                    new ToggleInfo(" No Track Delay", () => CheatToggles.noTrackingDelay,
-                        x => CheatToggles.noTrackingDelay = x),
-
-                    new ToggleInfo(" No Track Cooldown", () => CheatToggles.noTrackingCooldown,
-                        x => CheatToggles.noTrackingCooldown = x)
-
-                ]),
-
-                new SubmenuInfo("Engineer", false, [
-                    new ToggleInfo(" Endless Vent Time", () => CheatToggles.endlessVentTime,
-                        x => CheatToggles.endlessVentTime = x),
-
-                    new ToggleInfo(" No Vent Cooldown", () => CheatToggles.noVentCooldown,
-                        x => CheatToggles.noVentCooldown = x)
-
-                ]),
-
-                new SubmenuInfo("Scientist", false, [
-                    new ToggleInfo(" Endless Battery", () => CheatToggles.endlessBattery,
-                        x => CheatToggles.endlessBattery = x),
-
-                    new ToggleInfo(" No Vitals Cooldown", () => CheatToggles.noVitalsCooldown,
-                        x => CheatToggles.noVitalsCooldown = x)
-
-                ])
-
-            ]));
+            new ToggleInfo(" Set Fake Role", () => CheatToggles.changeRole, x => CheatToggles.changeRole = x)
+        ], [
+            new SubmenuInfo("Impostor", false, [
+                new ToggleInfo(" Kill Reach", () => CheatToggles.killReach, x => CheatToggles.killReach = x)
+            ]),
+            new SubmenuInfo("Shapeshifter", false, [
+                new ToggleInfo(" No Ss Animation", () => CheatToggles.noShapeshiftAnim, x => CheatToggles.noShapeshiftAnim = x),
+                new ToggleInfo(" Endless Ss Duration", () => CheatToggles.endlessSsDuration, x => CheatToggles.endlessSsDuration = x)
+            ]),
+            new SubmenuInfo("Crewmate", false, [
+                new ToggleInfo(" Show Tasks Menu", () => CheatToggles.showTasksMenu, x => CheatToggles.showTasksMenu = x)
+            ]),
+            new SubmenuInfo("Tracker", false, [
+                new ToggleInfo(" Endless Tracking", () => CheatToggles.endlessTracking, x => CheatToggles.endlessTracking = x),
+                new ToggleInfo(" No Track Delay", () => CheatToggles.noTrackingDelay, x => CheatToggles.noTrackingDelay = x),
+                new ToggleInfo(" No Track Cooldown", () => CheatToggles.noTrackingCooldown, x => CheatToggles.noTrackingCooldown = x)
+            ]),
+            new SubmenuInfo("Engineer", false, [
+                new ToggleInfo(" Endless Vent Time", () => CheatToggles.endlessVentTime, x => CheatToggles.endlessVentTime = x),
+                new ToggleInfo(" No Vent Cooldown", () => CheatToggles.noVentCooldown, x => CheatToggles.noVentCooldown = x)
+            ]),
+            new SubmenuInfo("Scientist", false, [
+                new ToggleInfo(" Endless Battery", () => CheatToggles.endlessBattery, x => CheatToggles.endlessBattery = x),
+                new ToggleInfo(" No Vitals Cooldown", () => CheatToggles.noVitalsCooldown, x => CheatToggles.noVitalsCooldown = x)
+            ])
+        ]));
 
         groups.Add(new GroupInfo("Ship", false, [
-            new ToggleInfo(" Unfixable Lights", () => CheatToggles.unfixableLights,
-                x => CheatToggles.unfixableLights = x),
+            new ToggleInfo(" Unfixable Lights", () => CheatToggles.unfixableLights, x => CheatToggles.unfixableLights = x),
             new ToggleInfo(" Report Body", () => CheatToggles.reportBody, x => CheatToggles.reportBody = x),
             new ToggleInfo(" Close Meeting", () => CheatToggles.closeMeeting, x => CheatToggles.closeMeeting = x),
-            new ToggleInfo(" Auto-Open Doors On Use", () => CheatToggles.autoOpenDoorsOnUse, x => CheatToggles.autoOpenDoorsOnUse = x)
+            new ToggleInfo(" Auto-Open Doors On Use", () => CheatToggles.autoOpenDoorsOnUse, x => CheatToggles.autoOpenDoorsOnUse = x),
+            new ToggleInfo(" Rage Quit", () => false, x => CheatToggles.rageQuit = x) // NEW: Rage Quit BUTTON
         ], [
             new SubmenuInfo("Sabotage", false, [
                 new ToggleInfo(" Reactor", () => CheatToggles.reactorSab, x => CheatToggles.reactorSab = x),
@@ -148,13 +108,11 @@ public class MenuUI : MonoBehaviour
                 new ToggleInfo(" Trigger Spores", () => CheatToggles.mushSpore, x => CheatToggles.mushSpore = x),
                 new ToggleInfo(" Open Sabotage Map", () => CheatToggles.sabotageMap, x => CheatToggles.sabotageMap = x)
             ]),
-
             new SubmenuInfo("Vents", false, [
                 new ToggleInfo(" Unlock Vents", () => CheatToggles.useVents, x => CheatToggles.useVents = x),
                 new ToggleInfo(" Kick All From Vents", () => CheatToggles.kickVents, x => CheatToggles.kickVents = x),
                 new ToggleInfo(" Walk In Vents", () => CheatToggles.walkVent, x => CheatToggles.walkVent = x)
             ])
-
         ]));
 
         groups.Add(new GroupInfo("Chat", false, [
@@ -162,16 +120,9 @@ public class MenuUI : MonoBehaviour
             new ToggleInfo(" Unlock Textbox", () => CheatToggles.chatJailbreak, x => CheatToggles.chatJailbreak = x)
         ], []));
 
-        // Console is temporarly disabled until we implement some features for it
-
-        //groups.Add(new GroupInfo("Console", false, new List<ToggleInfo>() {
-        //    new ToggleInfo(" ConsoleUI", () => MalumMenu.consoleUI.isVisible, x => MalumMenu.consoleUI.isVisible = x),
-        //}, new List<SubmenuInfo>()));
-
         groups.Add(new GroupInfo("Host-Only", false,
             [
-                new ToggleInfo(" Kill While Vanished", () => CheatToggles.killVanished,
-                    x => CheatToggles.killVanished = x),
+                new ToggleInfo(" Kill While Vanished", () => CheatToggles.killVanished, x => CheatToggles.killVanished = x),
                 new ToggleInfo(" Kill Anyone", () => CheatToggles.killAnyone, x => CheatToggles.killAnyone = x),
                 new ToggleInfo(" No Kill Cooldown", () => CheatToggles.zeroKillCd, x => CheatToggles.zeroKillCd = x),
                 new ToggleInfo(" Protect Player", () => CheatToggles.protectPlayer, x => CheatToggles.protectPlayer = x),
@@ -181,21 +132,14 @@ public class MenuUI : MonoBehaviour
                 new SubmenuInfo("Murder", false, [
                     new ToggleInfo(" Kill Player", () => CheatToggles.killPlayer, x => CheatToggles.killPlayer = x),
                     new ToggleInfo(" Telekill Player", () => CheatToggles.telekillPlayer, x => CheatToggles.telekillPlayer = x),
-                    new ToggleInfo(" Kill All Crewmates", () => CheatToggles.killAllCrew,
-                        x => CheatToggles.killAllCrew = x),
-
-                    new ToggleInfo(" Kill All Impostors", () => CheatToggles.killAllImps,
-                        x => CheatToggles.killAllImps = x),
-
+                    new ToggleInfo(" Kill All Crewmates", () => CheatToggles.killAllCrew, x => CheatToggles.killAllCrew = x),
+                    new ToggleInfo(" Kill All Impostors", () => CheatToggles.killAllImps, x => CheatToggles.killAllImps = x),
                     new ToggleInfo(" Kill Everyone", () => CheatToggles.killAll, x => CheatToggles.killAll = x)
-
                 ]),
-
                 new SubmenuInfo("Game State", false, [
                     new ToggleInfo(" Force Start Game", () => CheatToggles.forceStartGame, x => CheatToggles.forceStartGame = x),
                     new ToggleInfo(" No Game End", () => CheatToggles.noGameEnd, x => CheatToggles.noGameEnd = x)
                 ]),
-
                 new SubmenuInfo("Meetings", false, [
                     new ToggleInfo(" Call Meeting", () => CheatToggles.callMeeting, x => CheatToggles.callMeeting = x),
                     new ToggleInfo(" Skip Meeting", () => CheatToggles.skipMeeting, x => CheatToggles.skipMeeting = x),
@@ -229,7 +173,6 @@ public class MenuUI : MonoBehaviour
             new ToggleInfo(" RGB Mode", () => CheatToggles.RGBMode, x => CheatToggles.RGBMode = x)
         ], []));
 
-        // Waypoints group - SIMPLIFIED (will be handled manually in WindowFunction)
         groups.Add(new GroupInfo("Waypoints", false, [], []));
     }
 
@@ -267,7 +210,6 @@ public class MenuUI : MonoBehaviour
             alignment = TextAnchor.MiddleLeft,
         };
 
-        // Style for the vertical separator line between tab selector buttons and the actual tab content
         separatorStyle = new GUIStyle(GUI.skin.box)
         {
             normal = { background = Texture2D.whiteTexture },
@@ -275,23 +217,13 @@ public class MenuUI : MonoBehaviour
             padding = new RectOffset(),
             border = new RectOffset()
         };
-
-        // Text field style for rename input
-        textFieldStyle = new GUIStyle(GUI.skin.textField)
-        {
-            fontSize = 16,
-            alignment = TextAnchor.MiddleLeft,
-        };
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(Utils.stringToKeycode(MalumMenu.menuKeybind.Value)))
         {
-            //Enable-disable GUI with DELETE key
             isGUIActive = !isGUIActive;
-
-            //Also teleport the window to the mouse for immediate use
             Vector2 mousePosition = Input.mousePosition;
             windowRect.position = new Vector2(mousePosition.x, Screen.height - mousePosition.y);
             horizontalWindowRect.position = new Vector2(mousePosition.x, Screen.height - mousePosition.y);
@@ -299,8 +231,8 @@ public class MenuUI : MonoBehaviour
 
         if (CheatToggles.RGBMode)
         {
-            hue += Time.deltaTime * 0.3f; // Adjust speed of color change, higher multiplier = faster
-            if (hue > 1f) hue -= 1f; // Loop hue back to 0 when it exceeds 1
+            hue += Time.deltaTime * 0.3f;
+            if (hue > 1f) hue -= 1f;
         }
 
         if (CheatToggles.panic)
@@ -310,8 +242,11 @@ public class MenuUI : MonoBehaviour
             CheatToggles.panic = false;
         }
 
-        //Passive cheats are always on to avoid problems
-        //CheatToggles.unlockFeatures = CheatToggles.freeCosmetics = CheatToggles.avoidBans = true;
+        // Update Rage Quit timer
+        MalumCheats.UpdateRageQuit();
+
+        // Passive cheats are always on to avoid problems
+        // CheatToggles.unlockFeatures = CheatToggles.freeCosmetics = CheatToggles.avoidBans = true;
 
         if(!Utils.isPlayer){
             CheatToggles.changeRole = CheatToggles.killAll = CheatToggles.telekillPlayer = CheatToggles.killAllCrew = CheatToggles.killAllImps = CheatToggles.teleportCursor = CheatToggles.teleportPlayer = CheatToggles.spectate = CheatToggles.freecam = CheatToggles.killPlayer = CheatToggles.protectPlayer = false;
@@ -321,7 +256,6 @@ public class MenuUI : MonoBehaviour
             CheatToggles.killAll = CheatToggles.telekillPlayer = CheatToggles.killAllCrew = CheatToggles.killAllImps = CheatToggles.killPlayer = CheatToggles.protectPlayer = CheatToggles.ejectPlayer = CheatToggles.zeroKillCd = CheatToggles.killAnyone = CheatToggles.killVanished = CheatToggles.forceStartGame = CheatToggles.noGameEnd = CheatToggles.skipMeeting = CheatToggles.callMeeting = false;
         }
 
-        //Some cheats only work if the ship is present, so they are turned off if it is not
         if(!Utils.isShip){
             CheatToggles.revive = CheatToggles.sabotageMap = CheatToggles.unfixableLights = CheatToggles.completeMyTasks = CheatToggles.kickVents = CheatToggles.reportBody = CheatToggles.ejectPlayer = CheatToggles.closeMeeting = CheatToggles.skipMeeting = CheatToggles.callMeeting = CheatToggles.reactorSab = CheatToggles.oxygenSab = CheatToggles.commsSab = CheatToggles.elecSab = CheatToggles.mushSab = CheatToggles.closeAllDoors = CheatToggles.openAllDoors = CheatToggles.spamCloseAllDoors = CheatToggles.spamOpenAllDoors = CheatToggles.autoOpenDoorsOnUse = CheatToggles.mushSpore = CheatToggles.animShields = CheatToggles.animAsteroids = CheatToggles.animEmptyGarbage = CheatToggles.animScan = CheatToggles.animCamsInUse = false;
         }
@@ -333,7 +267,6 @@ public class MenuUI : MonoBehaviour
 
         InitStyles();
 
-        // Only change the window height while the user is not dragging it, or else dragging breaks
         if (!isDragging)
         {
             var windowHeight = CalculateWindowHeight();
@@ -342,12 +275,11 @@ public class MenuUI : MonoBehaviour
 
         if (CheatToggles.RGBMode)
         {
-            GUI.backgroundColor = Color.HSVToRGB(hue, 1f, 1f); // Set background color based on hue
+            GUI.backgroundColor = Color.HSVToRGB(hue, 1f, 1f);
         }
         else
         {
             var configHtmlColor = MalumMenu.menuHtmlColor.Value;
-
             if (!ColorUtility.TryParseHtmlString(configHtmlColor, out var uiColor))
             {
                 if (!configHtmlColor.StartsWith("#"))
@@ -366,11 +298,11 @@ public class MenuUI : MonoBehaviour
 
         if (MalumMenu.useHorizontalUI.Value)
         {
-            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, (GUI.WindowFunction)HorizontalWindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
+            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, HorizontalWindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
         }
         else
         {
-            windowRect = GUI.Window(0, windowRect, (GUI.WindowFunction)WindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
+            windowRect = GUI.Window(0, windowRect, WindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
         }
     }
 
@@ -389,131 +321,55 @@ public class MenuUI : MonoBehaviour
             {
                 group.isExpanded = !group.isExpanded;
                 groups[groupId] = group;
-                CloseAllGroupsExcept(groupId); // Close all other groups when one is expanded
-                
-                // Reset rename state when closing/opening groups
-                if (!group.isExpanded)
-                {
-                    isRenaming = false;
-                    waypointToRename = "";
-                    renameInput = "";
-                }
+                CloseAllGroupsExcept(groupId);
             }
             currentYPosition += groupSpacing;
 
             if (!group.isExpanded) continue;
             
-            // SPECIAL HANDLING FOR WAYPOINTS GROUP
             if (group.name == "Waypoints")
             {
-                // Save waypoint button - CENTERED
                 if (GUI.Button(new Rect(10, currentYPosition, 300, 34), "Save Current Position"))
                 {
                     if (Utils.isPlayer && Utils.isShip)
                     {
                         string name = $"WP_{System.DateTime.Now:HHmmss}";
-                        WaypointSystem.AddWaypoint(
-                            name,
-                            PlayerControl.LocalPlayer.transform.position,
-                            Utils.getCurrentMapID()
-                        );
+                        WaypointSystem.AddWaypoint(name, PlayerControl.LocalPlayer.transform.position, Utils.getCurrentMapID());
                     }
                 }
                 currentYPosition += 44;
                 
-                // Clear all button - CENTERED
                 if (GUI.Button(new Rect(10, currentYPosition, 300, 34), "Clear All Waypoints"))
                 {
                     WaypointSystem.ClearAllWaypoints();
-                    // Reset rename state
-                    isRenaming = false;
-                    waypointToRename = "";
-                    renameInput = "";
                 }
                 currentYPosition += 44;
                 
-                // Waypoints list header
                 GUI.Label(new Rect(10, currentYPosition, 300, 34), "Saved Waypoints (Current Map Only):");
                 currentYPosition += 34;
                 
-                // Simple list display
                 int waypointY = currentYPosition;
                 bool hasWaypoints = false;
                 
-                // Get waypoints for current map - but only if we're in a ship/game
                 if (Utils.isShip)
                 {
                     foreach (var wp in WaypointSystem.GetWaypointsForCurrentMap())
                     {
                         hasWaypoints = true;
                         
-                        if (isRenaming && waypointToRename == wp.name)
+                        // Waypoint info label (wider since no edit button)
+                        GUI.Label(new Rect(20, waypointY, 180, 34), $"{wp.name} ({wp.timestamp})");
+                        
+                        // Teleport button (adjusted position)
+                        if (GUI.Button(new Rect(205, waypointY, 34, 34), "TP"))
                         {
-                            // Show rename input field
-                            GUI.SetNextControlName("RenameField");
-                            renameInput = GUI.TextField(new Rect(20, waypointY, 130, 34), renameInput, textFieldStyle);
-                            
-                            // Save button
-                            if (GUI.Button(new Rect(155, waypointY, 44, 34), "Save"))
-                            {
-                                if (!string.IsNullOrWhiteSpace(renameInput) && renameInput != wp.name)
-                                {
-                                    WaypointSystem.RenameWaypoint(wp.name, renameInput);
-                                }
-                                isRenaming = false;
-                                waypointToRename = "";
-                                renameInput = "";
-                            }
-                            
-                            // Cancel button
-                            if (GUI.Button(new Rect(204, waypointY, 44, 34), "Cancel"))
-                            {
-                                isRenaming = false;
-                                waypointToRename = "";
-                                renameInput = "";
-                            }
-                            
-                            // Remove button (smaller during rename)
-                            if (GUI.Button(new Rect(253, waypointY, 34, 34), "X"))
-                            {
-                                WaypointSystem.RemoveWaypoint(wp.name);
-                                isRenaming = false;
-                                waypointToRename = "";
-                                renameInput = "";
-                            }
-                            
-                            // Focus the text field when starting rename
-                            if (Event.current.type == EventType.Repaint)
-                            {
-                                GUI.FocusControl("RenameField");
-                            }
+                            WaypointSystem.TeleportToWaypoint(wp.name);
                         }
-                        else
+                        
+                        // Remove button (adjusted position)
+                        if (GUI.Button(new Rect(244, waypointY, 34, 34), "X"))
                         {
-                            // Normal display
-                            // Waypoint info label
-                            GUI.Label(new Rect(20, waypointY, 130, 34), $"{wp.name} ({wp.timestamp})");
-                            
-                            // Teleport button
-                            if (GUI.Button(new Rect(155, waypointY, 34, 34), "TP"))
-                            {
-                                WaypointSystem.TeleportToWaypoint(wp.name);
-                            }
-                            
-                            // Rename button
-                            if (GUI.Button(new Rect(194, waypointY, 44, 34), "Edit"))
-                            {
-                                // Start rename mode
-                                isRenaming = true;
-                                waypointToRename = wp.name;
-                                renameInput = wp.name;
-                            }
-                            
-                            // Remove button
-                            if (GUI.Button(new Rect(243, waypointY, 34, 34), "X"))
-                            {
-                                WaypointSystem.RemoveWaypoint(wp.name);
-                            }
+                            WaypointSystem.RemoveWaypoint(wp.name);
                         }
                         
                         waypointY += 38;
@@ -541,7 +397,6 @@ public class MenuUI : MonoBehaviour
                 continue;
             }
             
-            // Render direct toggles for the group (empty for waypoints)
             foreach (var toggle in group.toggles)
             {
                 bool currentState = toggle.getState();
@@ -571,14 +426,13 @@ public class MenuUI : MonoBehaviour
                         GUI.Label(new Rect(20, currentYPosition + 12, 270, 22), $"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.Speed} {(Utils.isSpeedDefault() ? "(Default)" : "")}");
                         currentYPosition += toggleSpacing;
                     }
-                }catch (NullReferenceException) {}
+                } catch (NullReferenceException) {}
             }
 
             for (int submenuId = 0; submenuId < group.submenus.Count; submenuId++)
             {
                 var submenu = group.submenus[submenuId];
 
-                // Add a button for each submenu and toggle its expansion state when clicked
                 if (GUI.Button(new Rect(20, currentYPosition, 280, 34), submenu.name, submenuButtonStyle))
                 {
                     submenu.isExpanded = !submenu.isExpanded;
@@ -591,7 +445,6 @@ public class MenuUI : MonoBehaviour
                 currentYPosition += submenuSpacing;
 
                 if (!submenu.isExpanded) continue;
-                // Show all the toggles in the expanded submenu
                 foreach (var toggle in submenu.toggles)
                 {
                     bool currentState = toggle.getState();
@@ -612,11 +465,9 @@ public class MenuUI : MonoBehaviour
             _ => isDragging
         };
 
-        GUI.DragWindow(); //Allows dragging the GUI window with mouse
+        GUI.DragWindow();
     }
 
-    // Dynamically calculate the window's height depending on
-    // The number of toggles & group expansion
     private int CalculateWindowHeight()
     {
         int totalHeight = 80;
@@ -630,7 +481,6 @@ public class MenuUI : MonoBehaviour
 
             if (!group.isExpanded) continue;
             
-            // Special height for Waypoints group
             if (group.name == "Waypoints")
             {
                 int waypointCount = 0;
@@ -666,7 +516,6 @@ public class MenuUI : MonoBehaviour
         return totalHeight;
     }
 
-    // Closes all expanded groups other than indexToKeepOpen
     private void CloseAllGroupsExcept(int indexToKeepOpen)
     {
         for (int i = 0; i < groups.Count; i++)
@@ -692,8 +541,6 @@ public class MenuUI : MonoBehaviour
     public void HorizontalWindowFunction(int windowID)
     {
         GUILayout.BeginHorizontal();
-
-        // Left tab selector (15% width)
         GUILayout.BeginVertical(GUILayout.Width(horizontalWindowRect.width * 0.15f));
         for (var i = 0; i < groups.Count; i++)
         {
@@ -702,32 +549,20 @@ public class MenuUI : MonoBehaviour
         }
         GUILayout.EndVertical();
 
-        // Invisible vertical separator line to create some space between the tab selector and the content
         GUILayout.Box("", separatorStyle, GUILayout.Width(1f), GUILayout.ExpandHeight(true));
         GUILayout.Box("", GUIStyle.none, GUILayout.Width(10f), GUILayout.ExpandHeight(true));
 
-        // Right tab content and controls (85% width)
         GUILayout.BeginVertical(GUILayout.Width(horizontalWindowRect.width * 0.85f));
-
-        // Tab-specific content
         if (selectedTab >= 0 && selectedTab < groups.Count)
         {
             GUILayout.Label(groups[selectedTab].name, tabTitleStyle);
             HorizontalDrawContent(selectedTab);
         }
-
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
-
-        // Make the window draggable
         GUI.DragWindow();
     }
 
-    /// <summary>
-    /// Gets the hardcoded number of left column submenus for each tab
-    /// </summary>
-    /// <param name="groupId">The group (tab) index</param>
-    /// <returns>The number of left column submenus</returns>
     private int GetLeftSubmenuCount(int groupId)
     {
         var name = groups[groupId].name;
@@ -750,7 +585,6 @@ public class MenuUI : MonoBehaviour
     public void HorizontalDrawContent(int groupId)
     {
         var group = groups[groupId];
-
         var count = group.submenus.Count;
         if (count == 0)
         {
@@ -760,7 +594,6 @@ public class MenuUI : MonoBehaviour
 
         GUILayout.BeginHorizontal();
         GUILayout.BeginVertical(GUILayout.Width(horizontalWindowRect.width * 0.425f));
-
         HorizontalDrawToggles(group.toggles);
 
         if (group.name == "Player")
@@ -779,13 +612,11 @@ public class MenuUI : MonoBehaviour
                     Utils.snapSpeedToDefault(0.05f);
                     GUILayout.Label($"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.Speed} {(Utils.isSpeedDefault() ? "(Default)" : "")}");
                 }
-            }catch (NullReferenceException) {}
+            } catch (NullReferenceException) {}
         }
 
         var desiredLeft = GetLeftSubmenuCount(groupId);
         var leftCount = Mathf.Clamp(desiredLeft, 0, count);
-
-        // Left column submenus
         var leftSubmenus = group.submenus.GetRange(0, leftCount);
         foreach (var submenu in leftSubmenus)
         {
@@ -794,7 +625,6 @@ public class MenuUI : MonoBehaviour
         }
         GUILayout.EndVertical();
 
-        // Right column submenus (if any)
         GUILayout.BeginVertical();
         if (count > leftCount)
         {
@@ -805,7 +635,6 @@ public class MenuUI : MonoBehaviour
                 HorizontalDrawToggles(submenu.toggles);
             }
         }
-
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
     }
