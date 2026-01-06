@@ -5,6 +5,10 @@ using System.Linq;
 using HarmonyLib;
 
 namespace MalumMenu;
+
+// Custom delegate to replace missing Unity GUI.WindowFunction
+public delegate void WindowFunctionDelegate(int windowID);
+
 public class MenuUI : MonoBehaviour
 {
     public List<GroupInfo> groups = [];
@@ -296,11 +300,11 @@ public class MenuUI : MonoBehaviour
 
         if (MalumMenu.useHorizontalUI.Value)
         {
-            horizontalWindowRect = UnityEngine.GUI.Window(0, horizontalWindowRect, DoHorizontalWindow, "MalumMenu v" + MalumMenu.malumVersion);
+            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, new WindowFunctionDelegate(DoHorizontalWindow), "MalumMenu v" + MalumMenu.malumVersion);
         }
         else
         {
-            windowRect = UnityEngine.GUI.Window(0, windowRect, DoWindow, "MalumMenu v" + MalumMenu.malumVersion);
+            windowRect = GUI.Window(0, windowRect, new WindowFunctionDelegate(DoWindow), "MalumMenu v" + MalumMenu.malumVersion);
         }
     }
 
