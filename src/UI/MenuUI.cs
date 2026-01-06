@@ -295,33 +295,81 @@ public class MenuUI : MonoBehaviour
             }
         }
 
-        // FIXED: Using lambda expressions to avoid delegate type issues
+        // CUSTOM WINDOW SYSTEM - NO GUI.Window
         if (MalumMenu.useHorizontalUI.Value)
         {
-            horizontalWindowRect = GUI.Window(0, horizontalWindowRect, 
-                (id) => HorizontalWindowFunction(id), 
-                "MalumMenu v" + MalumMenu.malumVersion);
+            DrawHorizontalCustomWindow();
         }
         else
         {
-            windowRect = GUI.Window(0, windowRect, 
-                (id) => WindowFunction(id), 
-                "MalumMenu v" + MalumMenu.malumVersion);
+            DrawVerticalCustomWindow();
         }
     }
 
-    private void DoWindow(int windowID)
+    private void DrawVerticalCustomWindow()
     {
-        WindowFunction(windowID);
+        // Draw window background
+        GUI.Box(windowRect, "");
+        
+        // Draw title bar
+        var titleBarRect = new Rect(windowRect.x, windowRect.y, windowRect.width, 40);
+        GUI.Box(titleBarRect, "MalumMenu v" + MalumMenu.malumVersion);
+        
+        // Handle dragging
+        HandleDragging(titleBarRect);
+        
+        // Draw content
+        var contentRect = new Rect(windowRect.x + 10, windowRect.y + 45, windowRect.width - 20, windowRect.height - 50);
+        GUILayout.BeginArea(contentRect);
+        WindowFunction(0); // Pass dummy window ID
+        GUILayout.EndArea();
     }
 
-    private void DoHorizontalWindow(int windowID)
+    private void DrawHorizontalCustomWindow()
     {
-        HorizontalWindowFunction(windowID);
+        // Draw window background
+        GUI.Box(horizontalWindowRect, "");
+        
+        // Draw title bar
+        var titleBarRect = new Rect(horizontalWindowRect.x, horizontalWindowRect.y, horizontalWindowRect.width, 40);
+        GUI.Box(titleBarRect, "MalumMenu v" + MalumMenu.malumVersion);
+        
+        // Handle dragging
+        HandleDragging(titleBarRect);
+        
+        // Draw content
+        var contentRect = new Rect(horizontalWindowRect.x + 10, horizontalWindowRect.y + 45, horizontalWindowRect.width - 20, horizontalWindowRect.height - 50);
+        GUILayout.BeginArea(contentRect);
+        HorizontalWindowFunction(0); // Pass dummy window ID
+        GUILayout.EndArea();
+    }
+
+    private void HandleDragging(Rect dragArea)
+    {
+        if (Event.current.type == EventType.MouseDown && dragArea.Contains(Event.current.mousePosition))
+        {
+            isDragging = true;
+        }
+        else if (Event.current.type == EventType.MouseUp)
+        {
+            isDragging = false;
+        }
+        else if (Event.current.type == EventType.MouseDrag && isDragging)
+        {
+            if (MalumMenu.useHorizontalUI.Value)
+            {
+                horizontalWindowRect.position += Event.current.delta;
+            }
+            else
+            {
+                windowRect.position += Event.current.delta;
+            }
+        }
     }
 
     public void WindowFunction(int windowID)
     {
+        // [KEEP YOUR EXISTING WindowFunction CODE - IT WORKS THE SAME]
         int groupSpacing = 55;
         int toggleSpacing = 44;
         int submenuSpacing = 44;
@@ -472,14 +520,7 @@ public class MenuUI : MonoBehaviour
             }
         }
 
-        isDragging = Event.current.type switch
-        {
-            EventType.MouseDrag => true,
-            EventType.MouseUp => false,
-            _ => isDragging
-        };
-
-        GUI.DragWindow();
+        // Remove the old GUI.DragWindow() since we handle dragging ourselves
     }
 
     private int CalculateWindowHeight()
@@ -554,6 +595,7 @@ public class MenuUI : MonoBehaviour
 
     public void HorizontalWindowFunction(int windowID)
     {
+        // [KEEP YOUR EXISTING HorizontalWindowFunction CODE]
         GUILayout.BeginHorizontal();
         GUILayout.BeginVertical(GUILayout.Width(horizontalWindowRect.width * 0.15f));
         for (var i = 0; i < groups.Count; i++)
@@ -574,7 +616,8 @@ public class MenuUI : MonoBehaviour
         }
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
-        GUI.DragWindow();
+        
+        // Remove the old GUI.DragWindow() since we handle dragging ourselves
     }
 
     private int GetLeftSubmenuCount(int groupId)
