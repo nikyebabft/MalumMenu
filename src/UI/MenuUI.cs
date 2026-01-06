@@ -10,8 +10,8 @@ public class MenuUI : MonoBehaviour
 
     public List<GroupInfo> groups = [];
     private bool isDragging = false;
-    private Rect windowRect = new(10, 10, 300, 500);
-    private Rect horizontalWindowRect = new(10, 10, 700, 550);
+    private Rect windowRect = new(10, 10, 320, 550); // Increased width from 300 to 320
+    private Rect horizontalWindowRect = new(10, 10, 750, 600); // Increased width from 700 to 750
     private bool isGUIActive = false;
     public static bool isPanicked = false;
     public int selectedTab;
@@ -233,11 +233,11 @@ public class MenuUI : MonoBehaviour
     {
         if (!MalumMenu.useHorizontalUI.Value && (GUI.skin.toggle.fontSize == 13 || GUI.skin.toggle.fontSize == 0))
         {
-            GUI.skin.toggle.fontSize = GUI.skin.button.fontSize = 20;
+            GUI.skin.toggle.fontSize = GUI.skin.button.fontSize = 22; // Increased from 20 to 22
         }
         else if (MalumMenu.useHorizontalUI.Value && GUI.skin.toggle.fontSize != 13)
         {
-            GUI.skin.toggle.fontSize = GUI.skin.button.fontSize = GUI.skin.label.fontSize = 13;
+            GUI.skin.toggle.fontSize = GUI.skin.button.fontSize = GUI.skin.label.fontSize = 14; // Increased from 13 to 14
         }
 
         if (submenuButtonStyle != null) return;
@@ -245,20 +245,20 @@ public class MenuUI : MonoBehaviour
         submenuButtonStyle = new GUIStyle(GUI.skin.button)
         {
             normal = { textColor = Color.white, background = Texture2D.grayTexture },
-            fontSize = 18
+            fontSize = 20 // Increased from 18 to 20
         };
         submenuButtonStyle.normal.background.Apply();
 
         tabTitleStyle = new GUIStyle(GUI.skin.label)
         {
-            fontSize = 20,
+            fontSize = 22, // Increased from 20 to 22
             fontStyle = FontStyle.Bold,
             alignment = TextAnchor.MiddleLeft,
         };
 
         tabSubtitleStyle = new GUIStyle(GUI.skin.label)
         {
-            fontSize = 15,
+            fontSize = 17, // Increased from 15 to 17
             fontStyle = FontStyle.Bold,
             alignment = TextAnchor.MiddleLeft,
         };
@@ -368,16 +368,16 @@ public class MenuUI : MonoBehaviour
 
     public void WindowFunction(int windowID)
     {
-        int groupSpacing = 50;
-        int toggleSpacing = 40;
-        int submenuSpacing = 40;
-        int currentYPosition = 20;
+        int groupSpacing = 55; // Increased from 50 to 55
+        int toggleSpacing = 44; // Increased from 40 to 44
+        int submenuSpacing = 44; // Increased from 40 to 44
+        int currentYPosition = 25; // Increased from 20 to 25
 
         for (int groupId = 0; groupId < groups.Count; groupId++)
         {
             GroupInfo group = groups[groupId];
 
-            if (GUI.Button(new Rect(10, currentYPosition, 280, 40), group.name))
+            if (GUI.Button(new Rect(10, currentYPosition, 300, 44), group.name)) // Increased width from 280 to 300, height from 40 to 44
             {
                 group.isExpanded = !group.isExpanded;
                 groups[groupId] = group;
@@ -391,9 +391,9 @@ public class MenuUI : MonoBehaviour
             if (group.name == "Waypoints")
             {
                 // Save waypoint button - CENTERED
-                if (GUI.Button(new Rect(10, currentYPosition, 280, 30), "Save Current Position"))
+                if (GUI.Button(new Rect(10, currentYPosition, 300, 34), "Save Current Position")) // Increased width from 280 to 300
                 {
-                    if (Utils.isPlayer)
+                    if (Utils.isPlayer && Utils.isShip)
                     {
                         string name = $"WP_{System.DateTime.Now:HHmmss}";
                         WaypointSystem.AddWaypoint(
@@ -403,64 +403,75 @@ public class MenuUI : MonoBehaviour
                         );
                     }
                 }
-                currentYPosition += 40;
+                currentYPosition += 44; // Increased from 40 to 44
                 
                 // Clear all button - CENTERED
-                if (GUI.Button(new Rect(10, currentYPosition, 280, 30), "Clear All Waypoints"))
+                if (GUI.Button(new Rect(10, currentYPosition, 300, 34), "Clear All Waypoints")) // Increased width from 280 to 300
                 {
                     WaypointSystem.ClearAllWaypoints();
                 }
-                currentYPosition += 40;
+                currentYPosition += 44; // Increased from 40 to 44
                 
                 // Waypoints list header
-                GUI.Label(new Rect(10, currentYPosition, 280, 30), "Saved Waypoints (Current Map Only):");
-                currentYPosition += 30;
+                GUI.Label(new Rect(10, currentYPosition, 300, 34), "Saved Waypoints (Current Map Only):"); // Increased width from 280 to 300
+                currentYPosition += 34; // Increased from 30 to 34
                 
                 // Simple list display
                 int waypointY = currentYPosition;
                 bool hasWaypoints = false;
                 
-                foreach (var wp in WaypointSystem.GetWaypointsForCurrentMap())
+                // Get waypoints for current map - but only if we're in a ship/game
+                if (Utils.isShip)
                 {
-                    hasWaypoints = true;
-                    
-                    // Waypoint info label
-                    GUI.Label(new Rect(20, waypointY, 120, 30), $"{wp.name} ({wp.timestamp})");
-                    
-                    // Teleport button
-                    if (GUI.Button(new Rect(145, waypointY, 30, 30), "TP"))
+                    foreach (var wp in WaypointSystem.GetWaypointsForCurrentMap())
                     {
-                        WaypointSystem.TeleportToWaypoint(wp.name);
+                        hasWaypoints = true;
+                        
+                        // Waypoint info label
+                        GUI.Label(new Rect(20, waypointY, 130, 34), $"{wp.name} ({wp.timestamp})"); // Increased width from 120 to 130
+                        
+                        // Teleport button
+                        if (GUI.Button(new Rect(155, waypointY, 34, 34), "TP")) // Adjusted positions
+                        {
+                            WaypointSystem.TeleportToWaypoint(wp.name);
+                        }
+                        
+                        // Rename button
+                        if (GUI.Button(new Rect(194, waypointY, 44, 34), "Edit")) // Adjusted positions
+                        {
+                            // Simple rename dialog - you might want to improve this
+                            string newName = wp.name + "_renamed";
+                            WaypointSystem.RenameWaypoint(wp.name, newName);
+                        }
+                        
+                        // Remove button
+                        if (GUI.Button(new Rect(243, waypointY, 34, 34), "X")) // Adjusted positions
+                        {
+                            WaypointSystem.RemoveWaypoint(wp.name);
+                        }
+                        
+                        waypointY += 38; // Increased from 35 to 38
                     }
-                    
-                    // Rename button
-                    if (GUI.Button(new Rect(180, waypointY, 40, 30), "Edit"))
-                    {
-                        // Simple rename dialog
-                        string newName = wp.name + "_renamed";
-                        WaypointSystem.RenameWaypoint(wp.name, newName);
-                    }
-                    
-                    // Remove button
-                    if (GUI.Button(new Rect(225, waypointY, 30, 30), "X"))
-                    {
-                        WaypointSystem.RemoveWaypoint(wp.name);
-                    }
-                    
-                    waypointY += 35;
                 }
                 
                 if (!hasWaypoints)
                 {
-                    GUI.Label(new Rect(20, currentYPosition, 250, 30), "No waypoints saved for this map");
-                    currentYPosition += 35;
+                    if (!Utils.isShip)
+                    {
+                        GUI.Label(new Rect(20, currentYPosition, 270, 34), "Enter a game to save waypoints"); // Increased width from 250 to 270
+                    }
+                    else
+                    {
+                        GUI.Label(new Rect(20, currentYPosition, 270, 34), "No waypoints saved for this map"); // Increased width from 250 to 270
+                    }
+                    currentYPosition += 38; // Increased from 35 to 38
                 }
                 else
                 {
                     currentYPosition = waypointY;
                 }
                 
-                currentYPosition += 10;
+                currentYPosition += 12; // Increased from 10 to 12
                 continue;
             }
             
@@ -468,7 +479,7 @@ public class MenuUI : MonoBehaviour
             foreach (var toggle in group.toggles)
             {
                 bool currentState = toggle.getState();
-                bool newState = GUI.Toggle(new Rect(20, currentYPosition, 260, 30), currentState, toggle.label);
+                bool newState = GUI.Toggle(new Rect(20, currentYPosition, 280, 34), currentState, toggle.label); // Increased width from 260 to 280, height from 30 to 34
                 if (newState != currentState)
                 {
                     toggle.setState(newState);
@@ -482,16 +493,16 @@ public class MenuUI : MonoBehaviour
                 {
                     if (PlayerControl.LocalPlayer.Data.IsDead)
                     {
-                        PlayerControl.LocalPlayer.MyPhysics.GhostSpeed = GUI.HorizontalSlider(new Rect(20, currentYPosition, 250, 30), PlayerControl.LocalPlayer.MyPhysics.GhostSpeed, 0f, 20f);
+                        PlayerControl.LocalPlayer.MyPhysics.GhostSpeed = GUI.HorizontalSlider(new Rect(20, currentYPosition, 270, 34), PlayerControl.LocalPlayer.MyPhysics.GhostSpeed, 0f, 20f); // Increased width from 250 to 270, height from 30 to 34
                         Utils.snapSpeedToDefault(0.05f, true);
-                        GUI.Label(new Rect(20, currentYPosition + 10, 250, 20), $"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.GhostSpeed} {(Utils.isSpeedDefault(true) ? "(Default)" : "")}");
+                        GUI.Label(new Rect(20, currentYPosition + 12, 270, 22), $"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.GhostSpeed} {(Utils.isSpeedDefault(true) ? "(Default)" : "")}"); // Adjusted positions
                         currentYPosition += toggleSpacing;
                     }
                     else
                     {
-                        PlayerControl.LocalPlayer.MyPhysics.Speed = GUI.HorizontalSlider(new Rect(20, currentYPosition, 250, 30), PlayerControl.LocalPlayer.MyPhysics.Speed, 0f, 20f);
+                        PlayerControl.LocalPlayer.MyPhysics.Speed = GUI.HorizontalSlider(new Rect(20, currentYPosition, 270, 34), PlayerControl.LocalPlayer.MyPhysics.Speed, 0f, 20f); // Increased width from 250 to 270, height from 30 to 34
                         Utils.snapSpeedToDefault(0.05f);
-                        GUI.Label(new Rect(20, currentYPosition + 10, 250, 20), $"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.Speed} {(Utils.isSpeedDefault() ? "(Default)" : "")}");
+                        GUI.Label(new Rect(20, currentYPosition + 12, 270, 22), $"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.Speed} {(Utils.isSpeedDefault() ? "(Default)" : "")}"); // Adjusted positions
                         currentYPosition += toggleSpacing;
                     }
                 }catch (NullReferenceException) {}
@@ -502,7 +513,7 @@ public class MenuUI : MonoBehaviour
                 var submenu = group.submenus[submenuId];
 
                 // Add a button for each submenu and toggle its expansion state when clicked
-                if (GUI.Button(new Rect(20, currentYPosition, 260, 30), submenu.name, submenuButtonStyle))
+                if (GUI.Button(new Rect(20, currentYPosition, 280, 34), submenu.name, submenuButtonStyle)) // Increased width from 260 to 280, height from 30 to 34
                 {
                     submenu.isExpanded = !submenu.isExpanded;
                     group.submenus[submenuId] = submenu;
@@ -518,7 +529,7 @@ public class MenuUI : MonoBehaviour
                 foreach (var toggle in submenu.toggles)
                 {
                     bool currentState = toggle.getState();
-                    bool newState = GUI.Toggle(new Rect(30, currentYPosition, 250, 30), currentState, toggle.label);
+                    bool newState = GUI.Toggle(new Rect(30, currentYPosition, 270, 34), currentState, toggle.label); // Increased width from 250 to 270, height from 30 to 34
                     if (newState != currentState)
                     {
                         toggle.setState(newState);
@@ -542,10 +553,10 @@ public class MenuUI : MonoBehaviour
     // The number of toggles & group expansion
     private int CalculateWindowHeight()
     {
-        int totalHeight = 70; // Base height for the window
-        int groupHeight = 50; // Height for each group title
-        int toggleHeight = 30; // Height for each toggle
-        int submenuHeight = 40; // Height for each submenu title
+        int totalHeight = 80; // Increased from 70 to 80 (Base height for the window)
+        int groupHeight = 55; // Increased from 50 to 55 (Height for each group title)
+        int toggleHeight = 34; // Increased from 30 to 34 (Height for each toggle)
+        int submenuHeight = 44; // Increased from 40 to 44 (Height for each submenu title)
 
         foreach (GroupInfo group in groups)
         {
@@ -556,11 +567,20 @@ public class MenuUI : MonoBehaviour
             // Special height for Waypoints group
             if (group.name == "Waypoints")
             {
-                int waypointCount = WaypointSystem.Waypoints.Count(w => w.mapId == Utils.getCurrentMapID());
+                int waypointCount = 0;
+                if (Utils.isShip)
+                {
+                    waypointCount = WaypointSystem.Waypoints.Count(w => w.mapId == Utils.getCurrentMapID());
+                }
+                
                 if (waypointCount == 0)
-                    totalHeight += 150; // Height for buttons + "No waypoints" message
+                {
+                    totalHeight += 160; // Increased from 150 (Height for buttons + message)
+                }
                 else
-                    totalHeight += 110 + (waypointCount * 35); // Height for buttons + waypoints list
+                {
+                    totalHeight += 120 + (waypointCount * 38); // Increased height calculations
+                }
                 continue;
             }
             
@@ -611,7 +631,7 @@ public class MenuUI : MonoBehaviour
         GUILayout.BeginVertical(GUILayout.Width(horizontalWindowRect.width * 0.15f));
         for (var i = 0; i < groups.Count; i++)
         {
-            if (GUILayout.Button(groups[i].name, GUILayout.Height(40)))
+            if (GUILayout.Button(groups[i].name, GUILayout.Height(44))) // Increased from 40 to 44
                 selectedTab = i;
         }
         GUILayout.EndVertical();
@@ -683,13 +703,13 @@ public class MenuUI : MonoBehaviour
             {
                 if (PlayerControl.LocalPlayer.Data.IsDead)
                 {
-                    PlayerControl.LocalPlayer.MyPhysics.GhostSpeed = GUILayout.HorizontalSlider(PlayerControl.LocalPlayer.MyPhysics.GhostSpeed, 0f, 20f, GUILayout.Width(250f));
+                    PlayerControl.LocalPlayer.MyPhysics.GhostSpeed = GUILayout.HorizontalSlider(PlayerControl.LocalPlayer.MyPhysics.GhostSpeed, 0f, 20f, GUILayout.Width(270f)); // Increased from 250f to 270f
                     Utils.snapSpeedToDefault(0.05f, true);
                     GUILayout.Label($"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.GhostSpeed} {(Utils.isSpeedDefault(true) ? "(Default)" : "")}");
                 }
                 else
                 {
-                    PlayerControl.LocalPlayer.MyPhysics.Speed = GUILayout.HorizontalSlider(PlayerControl.LocalPlayer.MyPhysics.Speed, 0f, 20f, GUILayout.Width(250f));
+                    PlayerControl.LocalPlayer.MyPhysics.Speed = GUILayout.HorizontalSlider(PlayerControl.LocalPlayer.MyPhysics.Speed, 0f, 20f, GUILayout.Width(270f)); // Increased from 250f to 270f
                     Utils.snapSpeedToDefault(0.05f);
                     GUILayout.Label($"Current Speed: {PlayerControl.LocalPlayer?.MyPhysics.Speed} {(Utils.isSpeedDefault() ? "(Default)" : "")}");
                 }
@@ -703,7 +723,7 @@ public class MenuUI : MonoBehaviour
         var leftSubmenus = group.submenus.GetRange(0, leftCount);
         foreach (var submenu in leftSubmenus)
         {
-            GUILayout.Label(submenu.name, tabSubtitleStyle, GUILayout.Height(30));
+            GUILayout.Label(submenu.name, tabSubtitleStyle, GUILayout.Height(34)); // Increased from 30 to 34
             HorizontalDrawToggles(submenu.toggles);
         }
         GUILayout.EndVertical();
@@ -715,7 +735,7 @@ public class MenuUI : MonoBehaviour
             var rightSubmenus = group.submenus.GetRange(leftCount, count - leftCount);
             foreach (var submenu in rightSubmenus)
             {
-                GUILayout.Label(submenu.name, tabSubtitleStyle, GUILayout.Height(30));
+                GUILayout.Label(submenu.name, tabSubtitleStyle, GUILayout.Height(34)); // Increased from 30 to 34
                 HorizontalDrawToggles(submenu.toggles);
             }
         }
@@ -729,7 +749,7 @@ public class MenuUI : MonoBehaviour
         foreach (var toggle in toggles)
         {
             var currentState = toggle.getState();
-            var newState = GUILayout.Toggle(currentState, toggle.label, GUILayout.Height(20));
+            var newState = GUILayout.Toggle(currentState, toggle.label, GUILayout.Height(24)); // Increased from 20 to 24
             if (newState != currentState)
                 toggle.setState(newState);
         }
