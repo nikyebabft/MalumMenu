@@ -7,6 +7,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System;
 
 namespace MalumMenu;
 public static class MalumCheats
@@ -533,7 +534,7 @@ public static class WaypointSystem
             name = name,
             position = position,
             mapId = mapId,
-            timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+            timestamp = System.DateTime.Now.ToString("HH:mm")
         };
         
         waypoints.Add(waypoint);
@@ -558,10 +559,29 @@ public static class WaypointSystem
         SaveWaypoints();
     }
     
+    public static void RenameWaypoint(string oldName, string newName)
+    {
+        var waypoint = waypoints.FirstOrDefault(w => w.name == oldName);
+        if (waypoint != null)
+        {
+            waypoint.name = newName;
+            SaveWaypoints();
+            
+            // Update marker name if exists
+            if (waypointMarkers.ContainsKey(oldName))
+            {
+                var marker = waypointMarkers[oldName];
+                waypointMarkers.Remove(oldName);
+                waypointMarkers[newName] = marker;
+                marker.name = $"WaypointMarker_{newName}";
+            }
+        }
+    }
+    
     public static void TeleportToWaypoint(string name)
     {
         var waypoint = waypoints.FirstOrDefault(w => w.name == name);
-        if (waypoint != null && Utils.isPlayer)
+        if (waypoint != null && Utils.isPlayer && Utils.getCurrentMapID() == waypoint.mapId)
         {
             PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(waypoint.position);
         }
@@ -582,6 +602,14 @@ public static class WaypointSystem
         SaveWaypoints();
     }
     
+    public static List<WaypointData> GetWaypointsForCurrentMap()
+    {
+        if (!Utils.isShip) return new List<WaypointData>();
+        
+        int currentMapId = Utils.getCurrentMapID();
+        return waypoints.Where(w => w.mapId == currentMapId).ToList();
+    }
+    
     public static void UpdateVisualMarkers()
     {
         // Only create markers for current map
@@ -597,7 +625,7 @@ public static class WaypointSystem
             }
         }
         
-        // Remove markers for wrong map
+        // Remove markers for wrong map or non-existent waypoints
         var toRemove = new List<string>();
         foreach (var kvp in waypointMarkers)
         {
@@ -669,7 +697,10 @@ public static class WaypointSystem
             
             File.WriteAllLines(WaypointFilePath, jsonLines);
         }
-        catch { }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to save waypoints: {e.Message}");
+        }
     }
     
     private static void LoadWaypoints()
@@ -680,10 +711,17 @@ public static class WaypointSystem
             {
                 string json = File.ReadAllText(WaypointFilePath);
                 waypoints = ParseWaypointsJson(json);
+                Debug.Log($"Loaded {waypoints.Count} waypoints from file");
+            }
+            else
+            {
+                Debug.Log("No waypoints file found, starting fresh");
+                waypoints = new List<WaypointData>();
             }
         }
-        catch
+        catch (Exception e)
         {
+            Debug.LogError($"Failed to load waypoints: {e.Message}");
             waypoints = new List<WaypointData>();
         }
     }
@@ -694,6 +732,8 @@ public static class WaypointSystem
         
         try
         {
+            if (string.IsNullOrWhiteSpace(json)) return result;
+            
             json = json.Replace("\r", "").Replace("\n", "").Replace(" ", "");
             
             if (!json.StartsWith("[") || !json.EndsWith("]"))
@@ -710,7 +750,10 @@ public static class WaypointSystem
                     result.Add(waypoint);
             }
         }
-        catch { }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to parse waypoints JSON: {e.Message}");
+        }
         
         return result;
     }
@@ -777,11 +820,13 @@ public static class WaypointSystem
     
     private static string EscapeJsonString(string input)
     {
+        if (string.IsNullOrEmpty(input)) return "";
         return input.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
     }
     
     private static string UnescapeJsonString(string input)
     {
+        if (string.IsNullOrEmpty(input)) return "";
         return input.Replace("\\\"", "\"").Replace("\\\\", "\\").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\t", "\t");
     }
 }
