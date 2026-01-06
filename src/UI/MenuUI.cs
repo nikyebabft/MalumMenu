@@ -281,7 +281,6 @@ public class MenuUI : MonoBehaviour
         {
             fontSize = 16,
             alignment = TextAnchor.MiddleLeft,
-            padding = new RectOffset(5, 5, 5, 5)
         };
     }
 
