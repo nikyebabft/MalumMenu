@@ -193,53 +193,71 @@ public static class MalumPPMCheats
     {
         if (CheatToggles.realTelekill)
         {
+            HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 1: Cheat toggled ON");
+            
             if (!realTelekillActive)
             {
+                HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 2: realTelekillActive was false");
+
                 // Close any player pick menus already open & their cheats
                 if (PlayerPickMenu.playerpickMenu != null)
                 {
+                    HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 3: Closing existing menu");
                     PlayerPickMenu.playerpickMenu.Close();
                     CheatToggles.DisablePPMCheats("realTelekill");
                 }
 
                 if (Utils.isLobby)
                 {
+                    HudManager.Instance.Notifier.AddDisconnectMessage("[RT] In lobby, aborting");
                     HudManager.Instance.Notifier.AddDisconnectMessage("Killing in lobby disabled for being too buggy");
                     CheatToggles.realTelekill = false;
                     return;
                 }
 
-                // First, ensure killReach is enabled
-                if (!CheatToggles.killReach)
-                {
-                    CheatToggles.killReach = true;
-                    HudManager.Instance.Notifier.AddDisconnectMessage("killReach enabled for RealTelekill");
-                }
-
+                HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 4: Storing original position");
                 // Store original position
                 var oldPos = PlayerControl.LocalPlayer.GetTruePosition();
 
+                HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 5: Opening player pick menu");
                 // Player pick menu made for killing any player
                 PlayerPickMenu.openPlayerPickMenu(Utils.GetAllPlayerData(), (Action)(() =>
                 {
+                    HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 6: Player selected in menu");
+                    
+                    // Ensure killReach is enabled for the actual kill
+                    if (!CheatToggles.killReach)
+                    {
+                        HudManager.Instance.Notifier.AddDisconnectMessage("[RT] killReach auto-enabled");
+                        CheatToggles.killReach = true;
+                    }
+                    
                     // Kill the target player
                     Utils.murderPlayer(PlayerPickMenu.targetPlayerData.Object, MurderResultFlags.Succeeded);
                     
+                    HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 7: Murder RPC sent, teleporting back");
                     // INSTANT teleport back (no delay)
                     PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(oldPos);
                 }));
 
+                HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Step 8: Menu opened successfully");
                 realTelekillActive = true;
+            }
+            else
+            {
+                HudManager.Instance.Notifier.AddDisconnectMessage("[RT] realTelekillActive was already true");
             }
 
             // Deactivate cheat if menu is closed
             if (PlayerPickMenu.playerpickMenu == null)
             {
+                HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Menu is null, deactivating cheat");
                 CheatToggles.realTelekill = false;
             }
         }
         else if (realTelekillActive)
         {
+            HudManager.Instance.Notifier.AddDisconnectMessage("[RT] Cheat toggled OFF, deactivating");
             realTelekillActive = false;
         }
     }
