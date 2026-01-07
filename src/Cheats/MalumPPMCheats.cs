@@ -16,6 +16,7 @@ public static class MalumPPMCheats
     public static bool reportBodyActive;
     public static bool ejectPlayerActive;
     public static bool changeRoleActive;
+    public static bool realTelekillActive;
     public static RoleTypes? oldRole = null;
 
     public static void reportBodyPPM()
@@ -188,7 +189,60 @@ public static class MalumPPMCheats
         }
     }
 
-    
+    public static void RealTelekillPPM()
+    {
+        if (CheatToggles.realTelekill)
+        {
+            if (!realTelekillActive)
+            {
+                // Close any player pick menus already open & their cheats
+                if (PlayerPickMenu.playerpickMenu != null)
+                {
+                    PlayerPickMenu.playerpickMenu.Close();
+                    CheatToggles.DisablePPMCheats("realTelekill");
+                }
+
+                if (Utils.isLobby)
+                {
+                    HudManager.Instance.Notifier.AddDisconnectMessage("Killing in lobby disabled for being too buggy");
+                    CheatToggles.realTelekill = false;
+                    return;
+                }
+
+                // First, ensure killReach is enabled
+                if (!CheatToggles.killReach)
+                {
+                    CheatToggles.killReach = true;
+                    HudManager.Instance.Notifier.AddDisconnectMessage("killReach enabled for RealTelekill");
+                }
+
+                // Store original position
+                var oldPos = PlayerControl.LocalPlayer.GetTruePosition();
+
+                // Player pick menu made for killing any player
+                PlayerPickMenu.openPlayerPickMenu(Utils.GetAllPlayerData(), (Action)(() =>
+                {
+                    // Kill the target player
+                    Utils.murderPlayer(PlayerPickMenu.targetPlayerData.Object, MurderResultFlags.Succeeded);
+                    
+                    // INSTANT teleport back (no delay)
+                    PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(oldPos);
+                }));
+
+                realTelekillActive = true;
+            }
+
+            // Deactivate cheat if menu is closed
+            if (PlayerPickMenu.playerpickMenu == null)
+            {
+                CheatToggles.realTelekill = false;
+            }
+        }
+        else if (realTelekillActive)
+        {
+            realTelekillActive = false;
+        }
+    }
 
     /// <summary>
     /// Coroutine to teleport the LocalPlayer back to their original position after a short delay.
