@@ -29,6 +29,7 @@ public class MenuUI : MonoBehaviour
             new ToggleInfo(" NoClip", () => CheatToggles.noClip, x => CheatToggles.noClip = x),
             new ToggleInfo(" Fake Revive", () => CheatToggles.revive, x => CheatToggles.revive = x),
             new ToggleInfo(" Invert Controls", () => CheatToggles.invertControls, x => CheatToggles.invertControls = x),
+            new ToggleInfo(" True Telekill", () => CheatToggles.realTelekill, x => CheatToggles.realTelekill = x),
         ], [
             new SubmenuInfo("Teleport", false, [
                 new ToggleInfo(" to Cursor", () => CheatToggles.teleportCursor, x => CheatToggles.teleportCursor = x),
