@@ -480,7 +480,7 @@ public static class MalumCheats
         // Save Point 1 - BUTTON
         if (CheatToggles.saveShadowPoint1 && Utils.isPlayer && Utils.isShip)
         {
-            _shadowClonePoint1 = PlayerControl.LocalPlayer.transform.position;
+            shadowClonePoint1 = PlayerControl.LocalPlayer.transform.position;
             HudManager.Instance.Notifier.AddDisconnectMessage("Shadow Clone Point 1 saved!");
             CheatToggles.saveShadowPoint1 = false;
         }
@@ -488,7 +488,7 @@ public static class MalumCheats
         // Save Point 2 - BUTTON
         if (CheatToggles.saveShadowPoint2 && Utils.isPlayer && Utils.isShip)
         {
-            _shadowClonePoint2 = PlayerControl.LocalPlayer.transform.position;
+            shadowClonePoint2 = PlayerControl.LocalPlayer.transform.position;
             HudManager.Instance.Notifier.AddDisconnectMessage("Shadow Clone Point 2 saved!");
             CheatToggles.saveShadowPoint2 = false;
         }
@@ -496,23 +496,23 @@ public static class MalumCheats
         // Start/Stop Teleport - BUTTON (toggles)
         if (CheatToggles.toggleShadowClone && Utils.isPlayer && Utils.isShip)
         {
-            _shadowCloneActive = !_shadowCloneActive;
+            shadowCloneActive = !shadowCloneActive;
             
-            if (_shadowCloneActive)
+            if (shadowCloneActive)
             {
                 // Check if we have both points
-                if (_shadowClonePoint1 != Vector3.zero && _shadowClonePoint2 != Vector3.zero)
+                if (shadowClonePoint1 != Vector3.zero && shadowClonePoint2 != Vector3.zero)
                 {
                     HudManager.Instance.Notifier.AddDisconnectMessage("Shadow Clone teleportation started!");
-                    _shadowCloneTeleportTimer = 0f;
+                    shadowCloneTeleportTimer = 0f;
                     // Start nearest to point1
-                    _isAtPoint1 = Vector3.Distance(PlayerControl.LocalPlayer.transform.position, _shadowClonePoint1) < 
-                                 Vector3.Distance(PlayerControl.LocalPlayer.transform.position, _shadowClonePoint2);
+                    isAtPoint1 = Vector3.Distance(PlayerControl.LocalPlayer.transform.position, shadowClonePoint1) < 
+                                 Vector3.Distance(PlayerControl.LocalPlayer.transform.position, shadowClonePoint2);
                 }
                 else
                 {
                     HudManager.Instance.Notifier.AddDisconnectMessage("Need both points set for Shadow Clone!");
-                    _shadowCloneActive = false;
+                    shadowCloneActive = false;
                 }
             }
             else
@@ -524,43 +524,43 @@ public static class MalumCheats
         }
         
         // Handle continuous teleportation
-        if (_shadowCloneActive && Utils.isPlayer && Utils.isShip)
+        if (shadowCloneActive && Utils.isPlayer && Utils.isShip)
         {
-            _shadowCloneTeleportTimer += Time.deltaTime;
+            shadowCloneTeleportTimer += Time.deltaTime;
             
             // Teleport every 0.02 seconds (50 times per second)
-            if (_shadowCloneTeleportTimer >= 0.02f)
+            if (shadowCloneTeleportTimer >= 0.02f)
             {
                 // Alternate between points
-                if (_isAtPoint1)
+                if (isAtPoint1)
                 {
-                    PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(_shadowClonePoint2);
-                    _isAtPoint1 = false;
+                    PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(shadowClonePoint2);
+                    isAtPoint1 = false;
                 }
                 else
                 {
-                    PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(_shadowClonePoint1);
-                    _isAtPoint1 = true;
+                    PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(shadowClonePoint1);
+                    isAtPoint1 = true;
                 }
                 
-                _shadowCloneTeleportTimer = 0f;
+                shadowCloneTeleportTimer = 0f;
             }
         }
     }
 
-    // Shadow Clone storage variables
-    private static Vector3 _shadowClonePoint1 = Vector3.zero;
-    private static Vector3 _shadowClonePoint2 = Vector3.zero;
-    private static float _shadowCloneTeleportTimer = 0f;
+    // Shadow Clone storage variables (FIXED - NO UNDERSCORES)
+    public static Vector3 shadowClonePoint1 = Vector3.zero;
+    public static Vector3 shadowClonePoint2 = Vector3.zero;
+    public static float shadowCloneTeleportTimer = 0f;
     public static bool shadowCloneActive = false;
-    private static bool _isAtPoint1 = true;
+    public static bool isAtPoint1 = true;
 
     // Reset when leaving ship (like other cheats)
     public static void ResetShadowClone()
     {
-        _shadowClonePoint1 = Vector3.zero;
-        _shadowClonePoint2 = Vector3.zero;
-        _shadowCloneActive = false;
+        shadowClonePoint1 = Vector3.zero;
+        shadowClonePoint2 = Vector3.zero;
+        shadowCloneActive = false;
     }
 
     // NEW: Waypoint cheats
