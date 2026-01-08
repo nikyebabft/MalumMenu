@@ -34,6 +34,10 @@ public class MenuUI : MonoBehaviour
             new SubmenuInfo("Teleport", false, [
                 new ToggleInfo(" to Cursor", () => CheatToggles.teleportCursor, x => CheatToggles.teleportCursor = x),
                 new ToggleInfo(" to Player", () => CheatToggles.teleportPlayer, x => CheatToggles.teleportPlayer = x),
+                new ToggleInfo(" Save Point 1", () => CheatToggles.savePoint1, x => CheatToggles.savePoint1 = x),
+                new ToggleInfo(" Save Point 2", () => CheatToggles.savePoint2, x => CheatToggles.savePoint2 = x),
+                new ToggleInfo(" Start/Stop Teleport", () => CheatToggles.toggleShadowClone, x => CheatToggles.toggleShadowClone = x),
+                new ToggleInfo(" Reset Points", () => CheatToggles.resetShadowPoints, x => CheatToggles.resetShadowPoints = x),
             ])
         ]));
 
