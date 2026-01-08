@@ -477,7 +477,7 @@ public static class MalumCheats
     // NEW: Shadow Clone cheat - Advanced teleportation between two points
     public static void ShadowCloneCheat()
     {
-        // Save Point 1
+        // Save Point 1 - BUTTON BEHAVIOR
         if (CheatToggles.savePoint1)
         {
             if (Utils.isPlayer && Utils.isShip)
@@ -485,10 +485,10 @@ public static class MalumCheats
                 _shadowClonePoint1 = PlayerControl.LocalPlayer.transform.position;
                 HudManager.Instance.Notifier.AddDisconnectMessage("Shadow Clone Point 1 saved!");
             }
-            CheatToggles.savePoint1 = false;
+            CheatToggles.savePoint1 = false; // Reset immediately
         }
         
-        // Save Point 2
+        // Save Point 2 - BUTTON BEHAVIOR
         if (CheatToggles.savePoint2)
         {
             if (Utils.isPlayer && Utils.isShip)
@@ -496,17 +496,17 @@ public static class MalumCheats
                 _shadowClonePoint2 = PlayerControl.LocalPlayer.transform.position;
                 HudManager.Instance.Notifier.AddDisconnectMessage("Shadow Clone Point 2 saved!");
             }
-            CheatToggles.savePoint2 = false;
+            CheatToggles.savePoint2 = false; // Reset immediately
         }
         
-        // Reset Points
+        // Reset Points - BUTTON BEHAVIOR
         if (CheatToggles.resetShadowPoints)
         {
             _shadowClonePoint1 = Vector3.zero;
             _shadowClonePoint2 = Vector3.zero;
             CheatToggles.shadowCloneActive = false;
             HudManager.Instance.Notifier.AddDisconnectMessage("Shadow Clone points reset!");
-            CheatToggles.resetShadowPoints = false;
+            CheatToggles.resetShadowPoints = false; // Reset immediately
         }
         
         // Handle teleportation between points
@@ -536,8 +536,8 @@ public static class MalumCheats
             return;
         }
         
-        // Start/Stop teleportation
-        if (CheatToggles.toggleShadowClone && hasValidPoints)
+        // Start/Stop teleportation - BUTTON BEHAVIOR
+        if (CheatToggles.toggleShadowClone)
         {
             CheatToggles.shadowCloneActive = !CheatToggles.shadowCloneActive;
             
@@ -555,10 +555,10 @@ public static class MalumCheats
                 HudManager.Instance.Notifier.AddDisconnectMessage("Shadow Clone teleportation stopped!");
             }
             
-            CheatToggles.toggleShadowClone = false;
+            CheatToggles.toggleShadowClone = false; // Reset immediately
         }
         
-        // Handle teleportation
+        // Handle continuous teleportation
         if (CheatToggles.shadowCloneActive && Utils.isPlayer && Utils.isShip)
         {
             _shadowCloneTeleportTimer += Time.deltaTime;
