@@ -552,7 +552,7 @@ public static class MalumCheats
     private static Vector3 _shadowClonePoint1 = Vector3.zero;
     private static Vector3 _shadowClonePoint2 = Vector3.zero;
     private static float _shadowCloneTeleportTimer = 0f;
-    private static bool _shadowCloneActive = false;
+    public static bool shadowCloneActive = false;
     private static bool _isAtPoint1 = true;
 
     // Reset when leaving ship (like other cheats)
