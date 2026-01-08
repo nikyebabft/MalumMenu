@@ -86,7 +86,7 @@ public partial class MalumMenu : BasePlugin
                 MalumCheats.walkInVentCheat();
                 MalumCheats.saveWaypointCheat();
                 MalumCheats.clearWaypointsCheat();
-                MalumCheats.ShadowCloneCheat();
+                
 
                 // Role-specific cheats
                 var role = PlayerControl.LocalPlayer.Data?.Role;
@@ -130,7 +130,13 @@ public partial class MalumMenu : BasePlugin
             MalumCheats.forceStartGameCheat();
             MalumCheats.completeMyTasksCheat();
             MalumCheats.ReviveCheat();
+            MalumCheats.ShadowCloneCheat();
             //WaypointSystem.UpdateVisualMarkers();
+
+            if (!Utils.isShip && MalumCheats._shadowCloneActive)
+            {
+                MalumCheats.ResetShadowClone();
+            }
         }
         catch { }
     }
