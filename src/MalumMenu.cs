@@ -86,7 +86,7 @@ public partial class MalumMenu : BasePlugin
                 MalumCheats.walkInVentCheat();
                 MalumCheats.saveWaypointCheat();
                 MalumCheats.clearWaypointsCheat();
-                 MalumCheats.ShadowCloneCheat();
+                MalumCheats.ShadowCloneCheat();
 
                 // Role-specific cheats
                 var role = PlayerControl.LocalPlayer.Data?.Role;
