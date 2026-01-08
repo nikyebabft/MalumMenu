@@ -82,11 +82,13 @@ public struct CheatToggles
     public static bool chatJailbreak;
 
     // haha naruto
-    public static bool savePoint1;
-    public static bool savePoint2;
-    public static bool resetShadowPoints;
-    public static bool toggleShadowClone;
-    public static bool shadowCloneActive;
+    public static bool savePoint1;    // Button, not toggle!
+    public static bool savePoint2;    // Button, not toggle!
+    public static bool resetShadowPoints;  // Button, not toggle!
+
+// Shadow Clone state (not buttons)
+    public static bool toggleShadowClone;  // This is a toggle
+    public static bool shadowCloneActive;  // Internal state
     
     //Ship
     public static bool closeMeeting;
