@@ -34,8 +34,8 @@ public class MenuUI : MonoBehaviour
                 new ToggleInfo(" to Cursor", () => CheatToggles.teleportCursor, x => CheatToggles.teleportCursor = x),
                 new ToggleInfo(" to Player", () => CheatToggles.teleportPlayer, x => CheatToggles.teleportPlayer = x),
                 // NEW: Shadow Clone buttons - BUTTON PATTERN
-                new ToggleInfo(" Save Point 1", () => false, x => { if (x) CheatToggles.savePoint1 = true; }),
-                new ToggleInfo(" Save Point 2", () => false, x => { if (x) CheatToggles.savePoint2 = true; }),
+                new ToggleInfo(" Save Point 1", () => false, x => { if (x) CheatToggles.saveShadowPoint1 = true; }),
+                new ToggleInfo(" Save Point 2", () => false, x => { if (x) CheatToggles.saveShadowPoint2 = true; }),
                 new ToggleInfo(" Start/Stop Teleport", () => false, x => { if (x) CheatToggles.toggleShadowClone = true; }),
             ])
         ]));
