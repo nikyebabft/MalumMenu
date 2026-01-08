@@ -133,7 +133,7 @@ public partial class MalumMenu : BasePlugin
             MalumCheats.ShadowCloneCheat();
             //WaypointSystem.UpdateVisualMarkers();
 
-            if (!Utils.isShip && MalumCheats._shadowCloneActive)
+            if (!Utils.isShip && MalumCheats.shadowCloneActive)
             {
                 MalumCheats.ResetShadowClone();
             }
